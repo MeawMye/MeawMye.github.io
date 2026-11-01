@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Telechips D3-G 임베디드 Linux 시스템 장애 분석 프로젝트">
+  <title>System-level Debugging | 김하영</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 바로가기</a>
+  <header class="site-header"><div class="container nav-wrap"><a class="brand" href="index.html">HY<span>.</span></a><nav class="primary-nav detail-nav"><a href="projects.html">← Projects</a><a href="#diagnosis">Diagnosis</a><a href="#evidence">Evidence</a><a href="#result">Result</a></nav></div></header>
+  <main id="main">
+    <section class="project-hero container debug-hero"><div><p class="eyebrow">SYSTEM-LEVEL DEBUGGING · EMBEDDED LINUX</p><h1>개발 중 발생한 System Freeze의 원인을 메모리 압박으로 좁힌 과정</h1><p>Telechips D3-G에서 Qt 애플리케이션을 개발하던 중 GUI, 입력 장치, 네트워크와 Serial Log가 함께 멈추는 현상을 재현하고 시스템 지표를 분석했습니다.</p></div><img src="assets/debugging-board.png" alt="System-level Debugging에 사용한 Telechips D3-G 보드"></section>
+    <section class="container"><dl class="project-meta"><div><dt>Role</dt><dd>개인 분석 · 상태 비교</dd></div><div><dt>Platform</dt><dd>Telechips D3-G · ARM64</dd></div><div><dt>Environment</dt><dd>Ubuntu · Qt · Remote SSH</dd></div><div><dt>Focus</dt><dd>Memory · Logs · System Response</dd></div></dl></section>
+    <section id="diagnosis" class="section container case-study debug-case">
+      <div class="case-block"><p class="case-number">01</p><div><h2>문제 상황</h2><p>Qt 애플리케이션을 개발하거나 빌드하던 중 Remote SSH 연결이 반복적으로 끊겼습니다. 같은 시점에 Ubuntu GUI, 키보드·마우스, Ping 응답과 Serial Log도 함께 멈춰 단순 네트워크 장애보다 시스템 전체의 문제로 조사 범위를 넓혔습니다.</p></div></div>
+      <div class="case-block"><p class="case-number">02</p><div><h2>담당 범위</h2><p>장애 재현, 이전 부팅의 Kernel Log와 Serial Log 확인, 시스템 자원 및 프로세스 분석, Swap 적용 후 동일 작업 재실행과 상태 비교를 수행했습니다.</p></div></div>
+      <div class="case-block"><p class="case-number">03</p><div><h2>진단 흐름</h2><ol class="step-list"><li><strong>로그 확인</strong><span>Kernel panic이나 OOM kill을 직접 나타내는 흔적이 있는지 조사</span></li><li><strong>가설 분리</strong><span>Wi-Fi 연결 해제가 원인인지 시스템 정지의 결과인지 단정하지 않고 보류</span></li><li><strong>자원 관찰</strong><span>top과 free -h로 CPU, 메모리, Swap 상태 확인</span></li><li><strong>점유원 추적</strong><span>ps aux로 보드에서 실행되는 원격 개발 프로세스의 메모리 사용량 분석</span></li><li><strong>가설 확인</strong><span>1GB Swap 적용 후 동일한 Qt 작업을 다시 실행해 시스템 응답 비교</span></li></ol></div></div>
+    </section>
+    <section id="evidence" class="section section-tinted"><div class="container"><div class="section-heading"><p class="eyebrow">EVIDENCE</p><h2>네트워크 증상에서 메모리 지표로 조사 범위를 전환</h2><p>한 가지 명령의 결과만으로 결론을 내리지 않고 여러 지표를 함께 확인했습니다.</p></div><div class="evidence-grid"><article><img src="assets/debugging-top.png" alt="top 명령으로 확인한 kswapd0 CPU 사용률"><div><span>top</span><strong>kswapd0 CPU 69.5%</strong><p>페이지 회수 작업에 부하가 집중되고 있을 가능성을 확인했습니다.</p></div></article><article><img src="assets/debugging-memory.png" alt="free 명령으로 확인한 가용 메모리와 Swap 상태"><div><span>free -h</span><strong>Available 24MiB · Swap 없음</strong><p>추가 작업을 수용할 메모리 여유가 거의 없었습니다.</p></div></article></div><div class="process-finding"><p class="eyebrow">PROCESS ANALYSIS</p><h3>애플리케이션 외에 원격 개발 도구도 보드의 RAM을 사용했습니다</h3><p>Windows PC에서 접속하더라도 VS Code Server와 확장 프로세스는 D3-G에서 실행됐습니다. Pylance와 ExtensionHost의 RSS가 각각 약 610MB와 497MB로 관찰되어, Ubuntu GUI와 Qt 작업뿐 아니라 개발 환경 전체의 메모리 부담을 원인 가설에 포함했습니다.</p></div></div></section>
+    <section id="result" class="section container"><div class="section-heading"><p class="eyebrow">RESULT</p><h2>1GB Swap 적용 후 동일 작업에서 Freeze가 재현되지 않았습니다</h2><p>물리 RAM을 증설할 수 없는 조건에서 Swap을 활성화하고 같은 Qt 작업을 다시 실행했습니다.</p></div><div class="verification-grid"><div class="before-after"><div><span>BEFORE</span><strong>24MiB</strong><small>Available memory</small></div><div><span>AFTER</span><strong>600–800MB</strong><small>Available memory</small></div><div><span>AFTER</span><strong>약 0–5%</strong><small>kswapd0 CPU</small></div></div><figure><img src="assets/debugging-result.png" alt="Swap 적용 전후 메모리 상태 비교"><figcaption>Swap 적용 후 재실행 구간에서 시스템 Freeze 미재현</figcaption></figure></div><p class="technical-caveat"><strong>판단 범위</strong> 같은 조건에서 다시 실행한 결과는 메모리 압박이 장애에 관여했다는 가설을 뒷받침합니다. 장시간·다회 반복 확인 전에는 단일 원인으로 확정하지 않습니다.</p></section>
+    <section class="section section-dark"><div class="container improvement-grid"><div><p class="eyebrow">PLATFORM INSIGHT</p><h2>개별 기능보다 동시 실행 환경의 자원 여유를 확인</h2></div><div><ul class="plain-list"><li><strong>실사용 조건 반영</strong><span>GUI, 개발 도구와 애플리케이션이 함께 실행될 때의 메모리와 응답성 확인</span></li><li><strong>개발 부하 분리</strong><span>불필요한 확장을 줄이고 빌드·코드 분석 작업의 PC 측 분리 검토</span></li><li><strong>자원 영향 확인</strong><span>특정 기능의 부하가 다른 기능의 응답에 미치는 영향 확인</span></li></ul></div></div></section>
+  </main>
+  <footer class="site-footer"><div class="container footer-wrap"><a class="text-link" href="projects.html">← 전체 프로젝트로 돌아가기</a><p>김하영 · Embedded Software Developer</p></div></footer>
+</body>
+</html>

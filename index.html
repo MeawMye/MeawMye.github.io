@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="김하영 임베디드 소프트웨어 개발자 포트폴리오">
+  <title>김하영 | 임베디드 소프트웨어 개발자</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="home-page">
+  <a class="skip-link" href="#main">본문으로 바로가기</a>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="#top" aria-label="김하영 포트폴리오 홈">HY<span>.</span></a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">메뉴</button>
+      <nav id="primary-nav" class="primary-nav" aria-label="주요 메뉴">
+        <a class="active" href="index.html">Home</a>
+        <a href="projects.html">Projects</a>
+        <a href="skills.html">Skills</a>
+        <a href="about.html">About</a>
+        <span class="language" aria-label="현재 언어 한국어">KO</span>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section id="top" class="hero container">
+      <div class="hero-copy">
+        <p class="eyebrow">EMBEDDED SOFTWARE DEVELOPER</p>
+        <h1>데이터 흐름을 추적하고<br>시스템 문제의 원인을 분석합니다</h1>
+        <p class="hero-description">STM32 펌웨어와 임베디드 Linux 환경에서 통신, RTOS, 보드 초기화와 시스템 디버깅을 경험한 신입 개발자 김하영입니다.</p>
+        <ul class="tech-line" aria-label="주요 기술">
+          <li>C</li><li>STM32</li><li>FreeRTOS</li><li>UART</li><li>USB CDC</li><li>Embedded Linux</li>
+        </ul>
+        <div class="hero-actions">
+          <a class="button primary" href="#projects">프로젝트 보기</a>
+          <a class="button secondary" href="#about">경험 살펴보기</a>
+        </div>
+      </div>
+      <figure class="hero-media">
+        <img src="assets/pc-monitor-board.png" alt="STM32F729I-DISCO 보드 LCD에 CPU RAM 네트워크 그래프가 출력된 모습">
+        <figcaption><span>PROJECT 01</span> STM32 PC Monitor 실제 보드 출력</figcaption>
+      </figure>
+    </section>
+
+    <section class="snapshot" aria-label="핵심 이력 요약">
+      <div class="container snapshot-grid">
+        <div><strong>4</strong><span>Projects</span></div>
+        <div><strong>STM32 · Linux</strong><span>주요 개발 환경</span></div>
+        <div><strong>SW + 전기전자</strong><span>복수전공</span></div>
+        <div><strong>4.2 / 4.5</strong><span>학점</span></div>
+      </div>
+    </section>
+
+    <section id="projects" class="section container">
+      <div class="section-heading">
+        <p class="eyebrow">SELECTED WORK</p>
+        <h2>직무 연관성이 높은 프로젝트</h2>
+        <p>무엇을 만들었는지보다 발견한 문제와 판단, 구현 결과를 중심으로 정리했습니다.</p>
+      </div>
+
+      <article class="featured-project">
+        <div class="project-visual">
+          <img src="assets/pc-monitor-demo.png" alt="PC 자원 정보가 STM32 LCD 그래프로 표시되는 PC Monitor 시연 화면">
+        </div>
+        <div class="project-copy">
+          <p class="project-index">01 · PERSONAL PROJECT</p>
+          <h3>STM32 PC Monitor</h3>
+          <p class="project-lead">PC 자원 정보를 UART로 전달하고 STM32 LCD에 실시간 그래프로 시각화한 임베디드 시스템</p>
+          <dl class="project-summary">
+            <div><dt>문제</dt><dd>전체 화면 작업 중 시스템 상태를 계속 확인하기 어려움</dd></div>
+            <div><dt>역할</dt><dd>PC 측정부터 MCU 수신과 LCD 출력까지 개인 구현</dd></div>
+            <div><dt>결과</dt><dd>최근 100개 샘플을 고정 메모리로 관리하고 실제 보드 출력 확인</dd></div>
+          </dl>
+          <ul class="tag-list" aria-label="사용 기술">
+            <li>STM32F729I-DISCO</li><li>FreeRTOS</li><li>UART</li><li>Python</li><li>BSP LCD</li>
+          </ul>
+          <a class="text-link" href="pc-monitor.html">문제 해결 과정과 구현 상세 보기 <span aria-hidden="true">→</span></a>
+        </div>
+      </article>
+
+      <div class="project-list" aria-label="추가 프로젝트">
+        <article>
+          <p class="project-index">02 · PERSONAL PROJECT</p>
+          <h3>Educational Firmware</h3>
+          <p>USB CDC, DMA 기반 UART와 내부 Flash 드라이버를 구현하며 통신과 메모리 제어의 기반을 다졌습니다.</p>
+          <ul class="tag-list"><li>STM32 HAL</li><li>USB CDC</li><li>DMA</li><li>Flash</li></ul>
+          <span class="status">상세 페이지 준비 중</span>
+        </article>
+        <article>
+          <p class="project-index">03 · DEBUGGING</p>
+          <h3>System-level Debugging</h3>
+          <p>로그와 프로세스 상태를 분석해 임베디드 Linux 시스템의 메모리 압박을 주요 원인으로 좁히고 변경 전후 상태를 비교했습니다.</p>
+          <ul class="tag-list"><li>Embedded Linux</li><li>ARM64</li><li>Memory</li><li>Logs</li></ul>
+          <span class="status">상세 페이지 준비 중</span>
+        </article>
+        <article>
+          <p class="project-index">04 · TEAM PROJECT</p>
+          <h3>Smart Highway ITS</h3>
+          <p>객체 추적 데이터의 흐름을 분석하고 차량 중복 집계와 누락을 줄이기 위한 개선 방향을 도출했습니다.</p>
+          <ul class="tag-list"><li>Embedded Linux</li><li>NPU</li><li>ByteTrack</li><li>YOLOv8</li></ul>
+          <span class="status">상세 페이지 준비 중</span>
+        </article>
+      </div>
+    </section>
+
+    <section id="skills" class="section section-tinted">
+      <div class="container">
+        <div class="section-heading">
+          <p class="eyebrow">TECHNICAL CAPABILITIES</p>
+          <h2>프로젝트로 확인한 기술 역량</h2>
+        </div>
+        <div class="capability-list">
+          <article><h3>Firmware</h3><p>STM32 HAL 기반 주변장치 제어, 내부 Flash 읽기·쓰기, 인터럽트와 DMA를 이용한 데이터 처리</p><a href="#projects">Educational Firmware</a></article>
+          <article><h3>Communication</h3><p>UART와 USB CDC 통신, 프레임 경계가 있는 텍스트 프로토콜, 원형 버퍼 기반 수신 구조</p><a href="pc-monitor.html">PC Monitor</a></article>
+          <article><h3>RTOS & Architecture</h3><p>FreeRTOS 태스크 시그널링과 ISR 책임 분리, 데이터 소유권과 UI 태스크 분리 개선안</p><a href="pc-monitor.html#architecture">PC Monitor</a></article>
+          <article><h3>System Debugging</h3><p>Serial·Kernel Log와 시스템 자원을 함께 관찰하고 가설을 세운 뒤 동일 조건에서 변경 전후 상태 비교</p><a href="#journey">System-level Debugging</a></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="journey" class="section container">
+      <div class="section-heading">
+        <p class="eyebrow">DEVELOPMENT JOURNEY</p>
+        <h2>구현에서 시스템 이해로 확장한 과정</h2>
+      </div>
+      <ol class="timeline">
+        <li><span>01</span><div><h3>Educational Firmware</h3><p>통신과 비휘발성 메모리 제어를 직접 구현하며 펌웨어의 기초 동작을 학습했습니다.</p></div></li>
+        <li><span>02</span><div><h3>STM32 PC Monitor</h3><p>PC와 MCU를 연결하고 수집, 전송, 파싱, 저장, 시각화까지 하나의 흐름으로 구성했습니다.</p></div></li>
+        <li><span>03</span><div><h3>Smart Highway ITS</h3><p>팀 프로젝트에서 기존 영상 처리 파이프라인을 읽고 객체 추적 상태와 카운팅 문제를 분석했습니다.</p></div></li>
+        <li><span>04</span><div><h3>System-level Debugging</h3><p>임베디드 Linux 시스템의 로그와 자원 상태를 근거로 장애 원인을 좁히고 개선 전후를 비교했습니다.</p></div></li>
+      </ol>
+    </section>
+
+    <section id="about" class="section section-dark">
+      <div class="container about-grid">
+        <div>
+          <p class="eyebrow">ABOUT</p>
+          <h2>동작하는 코드에서<br>설명할 수 있는 시스템으로</h2>
+        </div>
+        <div class="about-copy">
+          <p>기능 구현에 그치지 않고 함수 호출과 데이터 흐름을 따라가며 시스템이 동작하는 이유를 이해하려고 합니다. 문서와 소스 코드를 직접 확인하고, 오류를 재현 가능한 단위로 나누어 원인을 좁혀가는 개발자가 되고자 합니다.</p>
+          <dl class="profile-list">
+            <div><dt>Education</dt><dd>소프트웨어공학 · 전기전자공학 복수전공</dd></div>
+            <div><dt>Academic</dt><dd>학점 4.2 / 4.5</dd></div>
+            <div><dt>Language</dt><dd>OPIc IM1</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+    <section class="home-standalone container">
+      <div class="home-copy">
+        <p class="eyebrow">EMBEDDED SOFTWARE DEVELOPER</p>
+        <h1>김하영</h1>
+        <p class="home-statement">데이터의 흐름을 따라가며<br>시스템이 동작하는 이유를 이해합니다</p>
+        <p class="hero-description">STM32 펌웨어와 임베디드 Linux 환경에서 통신, RTOS, 보드 초기화와 시스템 문제를 분석해온 신입 개발자입니다.</p>
+        <div class="hero-actions"><a class="button primary" href="projects.html">프로젝트 보기</a><a class="button secondary" href="about.html">소개 보기</a></div>
+      </div>
+      <div class="system-portrait" aria-label="PC에서 STM32 LCD까지 이어지는 개발 경험 다이어그램">
+        <div class="terminal-head"><span></span><span></span><span></span><code>system_trace.log</code></div>
+        <div class="trace-line"><span class="trace-no">01</span><div><small>SOURCE</small><strong>PC Telemetry</strong><code>CPU · RAM · NET</code></div></div>
+        <div class="trace-line"><span class="trace-no">02</span><div><small>TRANSPORT</small><strong>UART / USB CDC</strong><code>frame → buffer → event</code></div></div>
+        <div class="trace-line"><span class="trace-no">03</span><div><small>CONTROL</small><strong>STM32 + FreeRTOS</strong><code>ISR → task → state</code></div></div>
+        <div class="trace-line"><span class="trace-no">04</span><div><small>VERIFY</small><strong>LCD / System Logs</strong><code>observe → isolate → validate</code></div></div>
+        <p class="trace-status"><i></i> TRACE COMPLETE</p>
+      </div>
+      <div class="home-summary-grid">
+        <div><span>FOCUS</span><strong>Embedded Software</strong></div><div><span>PLATFORM</span><strong>STM32 · Linux</strong></div><div><span>FOUNDATION</span><strong>SW + 전기전자</strong></div><div><span>PROJECTS</span><strong>4 Projects</strong></div>
+      </div>
+      <div class="home-intro">
+        <p class="eyebrow">HOW I WORK</p><h2>동작 여부를 넘어 원인과 구조를 설명하는 개발자</h2><p>함수 호출과 데이터 흐름을 직접 따라가고 문서와 소스 코드를 대조합니다. 문제를 재현 가능한 단위로 나누고, 관찰한 근거를 바탕으로 가설을 세운 뒤 결과를 다시 확인합니다.</p>
+        <nav class="home-directory" aria-label="포트폴리오 섹션"><a href="projects.html"><span>01</span><strong>Projects</strong><small>문제와 해결 결과</small></a><a href="skills.html"><span>02</span><strong>Skills</strong><small>사용 근거가 있는 기술</small></a><a href="about.html"><span>03</span><strong>About</strong><small>경력과 교육 배경</small></a></nav>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-wrap">
+      <div><strong>김하영</strong><p>Embedded Software Developer</p></div>
+      <p>GitHub · LinkedIn · English CV 연결 완료</p>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>

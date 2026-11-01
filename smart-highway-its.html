@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="APACHE6 On-Device Edge AI 기반 Smart Highway ITS 팀 프로젝트와 김하영의 차량 카운터·후처리 기여">
+  <title>Smart Highway ITS | 김하영</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 바로가기</a>
+  <header class="site-header"><div class="container nav-wrap"><a class="brand" href="index.html">HY<span>.</span></a><nav class="primary-nav detail-nav"><a href="projects.html">← Projects</a><a href="#contribution">Contribution</a><a href="#evidence">Evidence</a><a href="#result">Result</a></nav></div></header>
+  <main id="main">
+    <section class="project-hero container its-hero">
+      <div><p class="eyebrow">TEAM PROJECT · ON-DEVICE EDGE AI</p><h1>차량 카운터의 데이터 흐름을 연결하고 중복 집계 원인을 추적한 Smart Highway ITS</h1><p>APACHE6 NPU의 차량 검출 결과와 ByteTrack을 이용해 차종별 통행량을 집계했습니다. 구현 과정에서 분류 변화로 Track ID가 끊기는 현상을 발견하고, 코드 구조를 분석해 후처리 보완과 개선 방향을 정리했습니다.</p></div>
+      <figure><img src="assets/its-overview.png" alt="Smart Highway ITS 원본과 후처리 적용 결과 비교"><figcaption>차량 검출, 도로 영역, 교통량과 혼잡도 OSD를 결합한 실행 화면</figcaption></figure>
+    </section>
+    <section class="container"><dl class="project-meta"><div><dt>Type</dt><dd>5인 팀 프로젝트</dd></div><div><dt>Platform</dt><dd>APACHE6 · Embedded Linux</dd></div><div><dt>My Focus</dt><dd>ITS Counter · Post-processing</dd></div><div><dt>Stack</dt><dd>C · NPU · ByteTrack · Wayland/EGL</dd></div></dl></section>
+
+    <section class="section container its-context">
+      <div class="section-heading"><p class="eyebrow">PROJECT CONTEXT</p><h2>보드 내부에서 인식부터 교통 정보 표출까지 처리</h2><p>차량과 도로 영역을 NPU로 추론하고, 추적 결과를 차종별 통계와 혼잡도 정보로 변환하는 실시간 파이프라인을 구성했습니다.</p></div>
+      <ol class="flow its-flow"><li><strong>Camera</strong><span>주행 영상 입력</span></li><li><strong>NPU</strong><span>차량·도로·차선 추론</span></li><li><strong>ByteTrack</strong><span>차량 ID 추적</span></li><li><strong>Post-process</strong><span>유효 객체 선별</span></li><li><strong>ITS Counter</strong><span>차종별 통계 집계</span></li><li><strong>Wayland OSD</strong><span>결과 화면 연결</span></li></ol>
+    </section>
+
+    <section id="contribution" class="section section-tinted"><div class="container">
+      <div class="section-heading"><p class="eyebrow">MY CONTRIBUTION</p><h2>직접 구현, 파이프라인 연동과 개선 제안을 구분했습니다</h2><p>팀 프로젝트 결과 전체가 아니라 제가 맡은 코드와 분석 범위를 기준으로 정리했습니다.</p></div>
+      <div class="contribution-table">
+        <article><span>IMPLEMENTED</span><h3>ITS 차량 카운터와 후처리</h3><ul><li><code>track_id</code>와 <code>class_id</code> 기반 차종별 집계</li><li>새로운 추론 timestamp에서만 카운터 갱신</li><li>Free-space 밖의 객체와 작은 원거리 검출 제외</li><li>통계 상태 관리와 결과 파이프라인 연결</li></ul></article>
+        <article><span>ANALYZED</span><h3>추론 이후 데이터 흐름</h3><ul><li>YOLOv8 후처리부터 ByteTrack, 결과 버퍼와 렌더링까지 추적</li><li>차종 분류 변화와 Track ID 단절의 연결 구조 확인</li><li>반대 차선 차량이 집계되는 조건 분석</li></ul></article>
+        <article><span>PROPOSED</span><h3>Tracker 구조 개선 방향</h3><ul><li>차종별 Tracker 대신 Camera 또는 Channel 단위 단일 Tracker 제안</li><li>Tracking identity와 일시적인 분류 결과를 분리하는 방향 제안</li><li>장면 전환 시 Tracker와 카운터 이력 동시 초기화 제안</li></ul></article>
+      </div>
+      <p class="role-boundary"><strong>협업 범위</strong> 차량 통계 결과를 기존 OpenGL OSD 출력 경로에 연결했습니다. OSD 모듈 구현과 텍스트의 세부 위치 조정은 팀원이 담당했습니다.</p>
+    </div></section>
+
+    <section class="section container its-problem">
+      <div class="case-block"><p class="case-number">01</p><div><h2>구현 중 발견한 문제</h2><p>모델이 같은 차량을 원거리에서 <code>car</code>와 <code>truck</code>으로 번갈아 분류했습니다. 차종별로 Tracker 인스턴스를 생성하는 구조에서는 분류가 바뀔 때 추적 상태가 이어지지 않아 새로운 Track ID가 부여될 수 있었습니다.</p></div></div>
+      <div class="case-block"><p class="case-number">02</p><div><h2>영향</h2><p>실제 차량은 하나지만 카운터가 서로 다른 ID를 신규 차량으로 판단해 중복 집계할 가능성이 생겼습니다. 도로 영역을 구분하지 않으면 반대 차선의 차량까지 목표 교통량에 포함되는 문제도 확인했습니다.</p></div></div>
+      <div class="case-block"><p class="case-number">03</p><div><h2>적용한 보완</h2><p>바운딩 박스의 하단 중심점을 Free-space 마스크와 대조해 주행 가능 영역 안의 차량만 집계했습니다. 렌더링 주기와 NPU 추론 주기의 차이 때문에 같은 결과를 반복 처리하지 않도록 timestamp 조건도 연결했습니다.</p></div></div>
+    </section>
+
+    <section id="evidence" class="section section-dark its-evidence"><div class="container">
+      <div class="section-heading"><p class="eyebrow">VIDEO EVIDENCE</p><h2>결과뿐 아니라 남은 문제도 함께 기록했습니다</h2><p>각 영상은 PPT에 임베딩된 원본을 분리한 자료입니다. 재생이 제한된 환경에서는 poster 이미지로 주요 장면을 확인할 수 있습니다.</p></div>
+      <div class="video-evidence-grid">
+        <article class="wide"><video controls preload="metadata" poster="assets/its-overview.png"><source src="assets/its-result-comparison.mp4" type="video/mp4">브라우저가 MP4 재생을 지원하지 않습니다.</video><div><span>RESULT COMPARISON</span><h3>원본과 ITS 후처리 결과 비교</h3><p>차량 통계, 혼잡도와 갓길 영역을 기존 NPU 실행 화면에 연결한 결과입니다.</p></div></article>
+        <article><video controls preload="metadata" poster="assets/its-mask-poster.png"><source src="assets/its-mask-flicker.mp4" type="video/mp4">브라우저가 MP4 재생을 지원하지 않습니다.</video><div><span>LIMIT 01</span><h3>Segmentation Mask Flickering</h3><p>조도와 노면 변화에 따라 도로 경계와 갓길 마스크가 흔들리는 현상입니다.</p></div></article>
+        <article><video controls preload="metadata" poster="assets/its-track-poster.png"><source src="assets/its-track-switch.mp4" type="video/mp4">브라우저가 MP4 재생을 지원하지 않습니다.</video><div><span>LIMIT 02</span><h3>차종 변화에 따른 Track ID Switching</h3><p>같은 차량의 분류가 바뀌면서 추적 연속성이 끊기는 핵심 문제입니다.</p></div></article>
+        <article class="wide"><video controls preload="metadata" poster="assets/its-lag-poster.png"><source src="assets/its-lag-shoulder.mp4" type="video/mp4">브라우저가 MP4 재생을 지원하지 않습니다.</video><div><span>LIMIT 03 · 04</span><h3>집계 지연과 정차 차량 미검출</h3><p>10초 누적 방식의 시간차와 갓길 정차 차량의 BBox가 검출되지 않는 한계를 확인했습니다.</p></div></article>
+      </div>
+    </div></section>
+
+    <section id="result" class="section container">
+      <div class="section-heading"><p class="eyebrow">RESULT &amp; LEARNING</p><h2>기능 구현을 넘어 기존 코드의 흐름을 읽고 문제 범위를 좁혔습니다</h2><p>차량 검출 결과를 통계로 연결하고 도로 밖 객체를 제외하는 후처리를 적용했습니다. 동시에 모델 분류와 Tracker 구조가 중복 집계에 미치는 영향을 분석해 다음 개선의 기준을 남겼습니다.</p></div>
+      <div class="its-result-list"><article><span>01</span><div><h3>실시간 통계 연결</h3><p>차종별 누적 수와 10초 구간 통계를 Wayland 화면에 전달할 수 있는 흐름을 구성했습니다.</p></div></article><article><span>02</span><div><h3>집계 대상 보정</h3><p>Free-space의 접지점 판정을 이용해 반대 차선과 도로 밖 객체의 통계 유입을 줄였습니다.</p></div></article><article><span>03</span><div><h3>구조적 한계 확인</h3><p>Track ID 연속성 문제는 후처리만으로 완전히 해결하기 어려우며 Tracker 생성 단위의 변경이 필요하다고 판단했습니다.</p></div></article></div>
+      <p class="technical-caveat"><strong>공개 범위</strong> 저장소와 제조사 SDK는 비공개 자료이므로 코드 원문과 GitHub 링크를 제공하지 않습니다. 이 페이지는 공개 가능한 역할, 동작 구조와 확인 결과만 설명합니다.</p>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="container footer-wrap"><a class="text-link" href="projects.html">← 전체 프로젝트로 돌아가기</a><p>김하영 · Embedded Software Developer</p></div></footer>
+</body>
+</html>
