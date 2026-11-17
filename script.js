@@ -4,8 +4,21 @@ const languageMarker = document.querySelector('.language');
 
 if (languageMarker) {
   const english = window.location.pathname.includes('/en/');
-  const fileName = window.location.pathname.split('/').filter(Boolean).at(-1) || 'index.html';
+  const lastSegment = window.location.pathname.split('/').filter(Boolean).at(-1) || '';
+  const fileName = lastSegment.endsWith('.html') ? lastSegment : 'index.html';
   const counterpart = english ? `../${fileName}${window.location.hash}` : `en/${fileName}${window.location.hash}`;
+  let savedLanguage = null;
+  try {
+    savedLanguage = window.localStorage.getItem('portfolio-language');
+  } catch {}
+  const browserLanguages = navigator.languages?.length ? navigator.languages : [navigator.language];
+  const browserLanguage = browserLanguages.some((language) => language?.toLowerCase().startsWith('ko')) ? 'ko' : 'en';
+  const preferredLanguage = savedLanguage || browserLanguage;
+
+  if ((preferredLanguage === 'en') !== english) {
+    window.location.replace(counterpart);
+  }
+
   const current = document.createElement('span');
   const other = document.createElement('a');
   current.className = 'active';
@@ -13,6 +26,11 @@ if (languageMarker) {
   other.href = counterpart;
   other.textContent = english ? 'KO' : 'EN';
   other.setAttribute('aria-label', english ? '한국어로 보기' : 'View in English');
+  other.addEventListener('click', () => {
+    try {
+      window.localStorage.setItem('portfolio-language', english ? 'ko' : 'en');
+    } catch {}
+  });
   languageMarker.className = 'language-switch';
   languageMarker.replaceChildren(english ? other : current, english ? current : other);
 }
