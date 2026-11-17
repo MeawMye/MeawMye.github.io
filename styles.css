@@ -312,6 +312,7 @@ code { font-family: Consolas, "Courier New", monospace; }
 .verification-grid figcaption { margin-top: 12px; color: var(--muted); font-size: 13px; text-align: center; }
 .technical-caveat { margin-top: 40px; padding: 22px 0; border-block: 1px solid var(--line); color: var(--muted); }
 .technical-caveat strong { margin-right: 20px; color: var(--ink); }
+.source-link-section { padding-block: 16px 48px; }
 
 /* Smart Highway ITS case study */
 .its-hero { display: grid; grid-template-columns: 1.08fr .92fr; align-items: center; gap: 58px; }
