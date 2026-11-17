@@ -340,14 +340,13 @@ code { font-family: Consolas, "Courier New", monospace; }
 .portfolio-home section[id] { scroll-margin-top: 72px; }
 .one-page-hero { min-height: 660px; }
 .one-page-hero h1 { font-size: clamp(40px, 5vw, 64px); }
-.home-project-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
-.home-project-card { overflow: hidden; border: 1px solid var(--line); background: var(--white); }
+.home-project-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+.home-project-card { display: flex; overflow: hidden; border: 1px solid var(--line); background: var(--white); flex-direction: column; }
 .home-project-card > img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background: var(--soft); }
-.home-project-body { padding: 30px; }
+.home-project-body { display: flex; padding: 30px; flex: 1; flex-direction: column; }
 .home-project-body > p:not(.project-index):not(.project-lead) { color: var(--muted); }
 .home-project-body .text-link { margin-top: 24px; }
-.featured-card { grid-column: 1 / -1; display: grid; grid-template-columns: 1.05fr .95fr; }
-.featured-card > img { height: 100%; aspect-ratio: auto; object-fit: cover; }
+.home-project-body .tag-list { margin-top: auto; }
 .home-skill-grid { display: grid; grid-template-columns: repeat(4, 1fr); border-block: 1px solid #ccd3dc; }
 .home-skill-grid article { padding: 30px 24px; border-right: 1px solid #ccd3dc; }
 .home-skill-grid article:first-child { border-left: 1px solid #ccd3dc; }
@@ -368,8 +367,6 @@ code { font-family: Consolas, "Courier New", monospace; }
 
 @media (max-width: 900px) {
   .home-project-grid { grid-template-columns: 1fr 1fr; }
-  .featured-card { display: block; }
-  .featured-card > img { aspect-ratio: 16 / 10; }
   .home-skill-grid { grid-template-columns: 1fr 1fr; }
   .home-skill-grid article { border-bottom: 1px solid #ccd3dc; }
   .home-records article { grid-template-columns: 230px 1fr; gap: 35px; }
