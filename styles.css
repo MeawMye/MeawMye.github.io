@@ -348,7 +348,8 @@ code { font-family: Consolas, "Courier New", monospace; }
 
 /* One-page portfolio */
 .portfolio-home section[id] { scroll-margin-top: 72px; }
-.one-page-hero { min-height: 560px; }
+.one-page-hero { min-height: 500px; grid-template-columns: 1fr; }
+.one-page-hero .hero-copy { max-width: 820px; }
 .one-page-hero h1 { font-size: clamp(32px, 3.4vw, 42px); }
 .home-project-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
 .home-project-card { display: flex; overflow: hidden; border: 1px solid var(--line); background: var(--white); flex-direction: column; }
