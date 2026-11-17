@@ -35,3 +35,38 @@ if (toggle && nav) {
     });
   });
 }
+
+if (document.body.classList.contains('portfolio-home') && nav) {
+  const sectionLinks = [...nav.querySelectorAll('a[href^="#"]')];
+  const sections = sectionLinks
+    .map((link) => ({ link, section: document.querySelector(link.getAttribute('href')) }))
+    .filter((item) => item.section);
+  let scheduled = false;
+
+  const updateActiveSection = () => {
+    const activationPoint = window.scrollY + window.innerHeight * 0.38;
+    let current = null;
+
+    sections.forEach((item) => {
+      if (item.section.offsetTop <= activationPoint) current = item;
+    });
+
+    sections.forEach((item) => {
+      const active = item === current;
+      item.link.classList.toggle('active', active);
+      if (active) item.link.setAttribute('aria-current', 'location');
+      else item.link.removeAttribute('aria-current');
+    });
+    scheduled = false;
+  };
+
+  const scheduleUpdate = () => {
+    if (scheduled) return;
+    scheduled = true;
+    window.requestAnimationFrame(updateActiveSection);
+  };
+
+  window.addEventListener('scroll', scheduleUpdate, { passive: true });
+  window.addEventListener('resize', scheduleUpdate);
+  updateActiveSection();
+}
