@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="APACHE6 On-Device Edge AI-based Smart Highway ITS team project and Hayoung Kim's contribution to vehicle counter and post-processing">
+  <title>Smart Highway ITS | Hayoung Kim</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header"><div class="container nav-wrap"><a class="brand" href="index.html">HY<span>.</span></a><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">Menu</button><nav id="primary-nav" class="primary-nav"><a class="active" href="index.html#projects">Projects</a><a href="index.html#skills">Skills</a><a href="about-details.html">Experience</a><a href="index.html#about">About</a><span class="language">KO</span></nav></div></header>
+  <main id="main">
+    <section class="project-hero container its-hero">
+      <div><p class="eyebrow">TEAM PROJECT · ON-DEVICE EDGE AI</p><h1>Connecting the vehicle-counting pipeline and investigating duplicate counts in Smart Highway ITS</h1><p>We tallied the traffic volume by vehicle type using the vehicle detection results of APACHE6 NPU and ByteTrack. During the implementation process, we discovered a phenomenon in which Track IDs were disconnected due to classification changes, and analyzed the code structure to organize post-processing supplements and improvement directions.</p></div>
+      <figure><img src="../assets/its-overview.png" alt="Comparison of Smart Highway ITS original and post-processing results"><figcaption>Launch screen combining vehicle detection, road area, traffic volume and congestion OSD</figcaption></figure>
+    </section>
+    <section class="container"><dl class="project-meta"><div><dt>Type</dt><dd>Five-person team project</dd></div><div><dt>Platform</dt><dd>APACHE6 · Embedded Linux</dd></div><div><dt>My Focus</dt><dd>ITS Counter · Post-processing</dd></div><div><dt>Stack</dt><dd>C · NPU · ByteTrack · Wayland/EGL</dd></div></dl></section>
+
+    <section class="section container its-context">
+      <div class="section-heading"><p class="eyebrow">PROJECT CONTEXT</p><h2>Processes everything from recognition to traffic information display inside the board</h2><p>We constructed a real-time pipeline that infers vehicle and road areas using NPU and converts tracking results into vehicle type statistics and congestion information.</p></div>
+      <ol class="flow its-flow"><li><strong>Camera</strong><span>Driving video input</span></li><li><strong>NPU</strong><span>Vehicle, road, lane inference</span></li><li><strong>ByteTrack</strong><span>Vehicle ID Tracking</span></li><li><strong>Post-process</strong><span>Valid object selection</span></li><li><strong>ITS Counter</strong><span>Statistics by vehicle type</span></li><li><strong>Wayland OSD</strong><span>Result screen link</span></li></ol>
+    </section>
+
+    <section id="contribution" class="section section-tinted"><div class="container">
+      <div class="section-heading"><p class="eyebrow">MY CONTRIBUTION</p><h2>Separating my direct implementation, pipeline integration, and improvement proposals</h2><p>I organized it based on the code and scope of analysis I was responsible for, rather than the entire team project results.</p></div>
+      <div class="contribution-table">
+        <article><span>IMPLEMENTED</span><h3>ITS vehicle counter and post-processing</h3><ul><li><code>track_id</code>and <code>class_id</code> Aggregation by base vehicle type</li><li>Update counter only from new inference timestamp</li><li>Excluding objects outside free-space and small distant detection</li><li>Statistical state management and results pipeline connection</li></ul></article>
+        <article><span>ANALYZED</span><h3>Data flow after inference</h3><ul><li>Tracking from YOLOv8 post-processing to ByteTrack, result buffer and rendering.</li><li>Check the connection structure between vehicle classification changes and Track ID disconnection</li><li>Analysis of conditions under which oncoming lane vehicles are counted</li></ul></article>
+        <article><span>PROPOSED</span><h3>Tracker structure improvement direction</h3><ul><li>Instead of trackers for each vehicle type, a single tracker is proposed for each camera or channel.</li><li>Proposed direction to separate tracking identity and temporal classification results</li><li>Proposal to simultaneously initialize tracker and counter history when changing scenes</li></ul></article>
+      </div>
+      <p class="role-boundary"><strong>scope of collaboration</strong> Connected vehicle statistics results to existing OpenGL OSD output path. A team member was responsible for implementing the OSD module and fine-tuning the positioning of the text.</p>
+    </div></section>
+
+    <section class="section container its-problem">
+      <div class="case-block"><p class="case-number">01</p><div><h2>Issues found during implementation</h2><p>Vehicles of the same model from a distance <code>car</code> and <code>truck</code> at different distances. In the structure of creating a Tracker instance for each vehicle type, the tracking status was not continued when the classification changed, so a new Track ID could be assigned.</p></div></div>
+      <div class="case-block"><p class="case-number">02</p><div><h2>Impact</h2><p>Although there is actually only one vehicle, there is a possibility of double counting because the counters judge different IDs as new vehicles. We also identified the problem that if the road area is not differentiated, even vehicles in the opposite lane are included in the target traffic volume.</p></div></div>
+      <div class="case-block"><p class="case-number">03</p><div><h2>Applied Mitigation</h2><p>The bottom center point of the bounding box was compared with the free-space mask to count only vehicles within the drivable area. A timestamp condition was also connected to avoid repeatedly processing the same results due to the difference between the rendering cycle and the NPU inference cycle.</p></div></div>
+    </section>
+
+    <section id="evidence" class="section section-dark its-evidence"><div class="container">
+      <div class="section-heading"><p class="eyebrow">VIDEO EVIDENCE</p><h2>Not only the results but also the remaining problems were recorded.</h2><p>Each video is a separate material from the original embedded in PPT. In environments where playback is restricted, you can check key scenes with a poster image.</p></div>
+      <div class="video-evidence-grid">
+        <article class="wide"><video controls preload="metadata" poster="assets/its-overview.png"><source src="../assets/its-result-comparison.mp4" type="video/mp4">Your browser does not support MP4 playback.</video><div><span>RESULT COMPARISON</span><h3>Comparison of original and ITS post-processing results</h3><p>This is the result of linking vehicle statistics, congestion and shoulder area to existing NPU execution screens.</p></div></article>
+        <article><video controls preload="metadata" poster="assets/its-mask-poster.png"><source src="../assets/its-mask-flicker.mp4" type="video/mp4">Your browser does not support MP4 playback.</video><div><span>LIMIT 01</span><h3>Segmentation Mask Flickering</h3><p>This is a phenomenon in which the road border and shoulder mask shake depending on changes in illumination and road surface.</p></div></article>
+        <article><video controls preload="metadata" poster="assets/its-track-poster.png"><source src="../assets/its-track-switch.mp4" type="video/mp4">Your browser does not support MP4 playback.</video><div><span>LIMIT 02</span><h3>Track ID Switching according to vehicle model changes</h3><p>A key issue is the loss of tracking continuity as the classification of the same vehicle changes.</p></div></article>
+        <article class="wide"><video controls preload="metadata" poster="assets/its-lag-poster.png"><source src="../assets/its-lag-shoulder.mp4" type="video/mp4">Your browser does not support MP4 playback.</video><div><span>LIMIT 03 · 04</span><h3>Delay in counting and non-detection of stopped vehicles</h3><p>We confirmed the 10-second cumulative time difference and the limit of BBox detection for vehicles stopped on the shoulder.</p></div></article>
+      </div>
+    </div></section>
+
+    <section id="result" class="section container">
+      <div class="section-heading"><p class="eyebrow">RESULT &amp; LEARNING</p><h2>Beyond feature implementation: tracing existing code and narrowing the problem scope</h2><p>We connected vehicle detection results to statistics and applied post-processing to exclude off-road objects. At the same time, we analyzed the impact of model classification and tracker structure on duplicate aggregation, leaving a basis for next improvement.</p></div>
+      <div class="its-result-list"><article><span>01</span><div><h3>Real-time statistics connection</h3><p>We have created a flow that can deliver the cumulative number of vehicles and 10-second section statistics to the Wayland screen.</p></div></article><article><span>02</span><div><h3>Compensation for aggregation targets</h3><p>Free-space grounding point judgment was used to reduce statistical inflow from oncoming lanes and off-road objects.</p></div></article><article><span>03</span><div><h3>Structural Limitation</h3><p>It was determined that the Track ID continuity issue was difficult to completely resolve through post-processing alone and that a change in the Tracker creation unit was necessary.</p></div></article></div>
+      <p class="technical-caveat"><strong>scope of disclosure</strong> Because the repository and manufacturer SDK are private materials, the original code and GitHub link are not provided. This page only describes publicly available roles, action structures, and verification results.</p>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="container footer-wrap"><a class="text-link" href="index.html#projects">← Return to entire project</a><p>Hayoung Kim · Embedded Software Developer</p></div></footer><script src="../script.js"></script>
+</body>
+</html>

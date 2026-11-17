@@ -1,5 +1,21 @@
 const toggle = document.querySelector('.nav-toggle');
 const nav = document.querySelector('#primary-nav');
+const languageMarker = document.querySelector('.language');
+
+if (languageMarker) {
+  const english = window.location.pathname.includes('/en/');
+  const fileName = window.location.pathname.split('/').filter(Boolean).at(-1) || 'index.html';
+  const counterpart = english ? `../${fileName}${window.location.hash}` : `en/${fileName}${window.location.hash}`;
+  const current = document.createElement('span');
+  const other = document.createElement('a');
+  current.className = 'active';
+  current.textContent = english ? 'EN' : 'KO';
+  other.href = counterpart;
+  other.textContent = english ? 'KO' : 'EN';
+  other.setAttribute('aria-label', english ? '한국어로 보기' : 'View in English');
+  languageMarker.className = 'language-switch';
+  languageMarker.replaceChildren(english ? other : current, english ? current : other);
+}
 
 document.querySelectorAll('a[href="about.html"]').forEach((link) => {
   link.setAttribute('href', 'about-details.html');

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Detailed description of STM32 PC Monitor project">
+  <title>STM32 PC Monitor | Hayoung Kim</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="index.html" aria-label="Portfolio Home">HY<span>.</span></a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">Menu</button>
+      <nav id="primary-nav" class="primary-nav" aria-label="main menu"><a class="active" href="index.html#projects">Projects</a><a href="index.html#skills">Skills</a><a href="about-details.html">Experience</a><a href="index.html#about">About</a><span class="language">KO</span></nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="project-hero container">
+      <p class="eyebrow">PERSONAL PROJECT · STM32</p>
+      <h1>Real-time PC resource visualization<br>on an STM32 LCD</h1>
+      <p>CPU, RAM, and network usage were measured on the PC and transmitted to the UART to display recent status changes on the STM32F729I-DISCO's LCD.</p>
+      <dl class="project-meta">
+        <div><dt>Role</dt><dd>Personal Project · Full Implementation</dd></div>
+        <div><dt>Platform</dt><dd>STM32F729I-DISCO</dd></div>
+        <div><dt>Stack</dt><dd>C · Python · FreeRTOS · UART · BSP LCD</dd></div>
+        <div><dt>Update</dt><dd>Approximately 1 second cycle · Recent 100 samples</dd></div>
+      </dl>
+    </section>
+
+    <section class="demo-section container" aria-labelledby="demo-title">
+      <div class="demo-heading"><p class="eyebrow">LIVE DEMO</p><h2 id="demo-title">Actual board output results</h2><p>You can see how changes in PC resources are reflected on the LCD graph through UART.</p></div>
+      <video controls preload="metadata" poster="assets/pc-monitor-demo.png">
+        <source src="../assets/pc-monitor-demo.mp4" type="video/mp4">
+        Your browser does not support video playback.
+      </video>
+      <p class="media-note">Currently, the original video is in HEVC format. In the public version, we will convert it to H.264 for browser compatibility.</p>
+    </section>
+
+    <section id="overview" class="section container case-study">
+      <div class="case-block"><p class="case-number">01</p><div><h2>Problem</h2><p>During full-screen operation, you had to switch screens to check system status. We wanted to create a device that could continuously check CPU, RAM, and network changes on a separate display.</p></div></div>
+      <div class="case-block"><p class="case-number">02</p><div><h2>My Role</h2><p>We implemented the entire flow from Python-based PC resource measurement, port search, UART transmission to STM32 reception interrupt, packet parsing, history management, and LCD graph output.</p></div></div>
+      <div class="case-block"><p class="case-number">03</p><div><h2>Approach</h2><ol class="step-list"><li><strong>Measurement</strong><span>Collect CPU/RAM usage and network throughput with psutil</span></li><li><strong>Transmission</strong><span>Send a text frame with defined fields and boundaries to UART</span></li><li><strong>Reception</strong><span>Assemble the frame with a 1-byte interrupt and signal completion to the task</span></li><li><strong>Storage</strong><span>Keep the most recent 100 samples in a fixed-size circular buffer</span></li><li><strong>Visualization</strong><span>Convert measured values ​​to LCD coordinates and output CPU/RAM/NET graph</span></li></ol></div></div>
+      <div class="case-block result-block"><p class="case-number">04</p><div><h2>Result</h2><div class="result-grid"><p><strong>About 1 second</strong><span>Basic data update cycle</span></p><p><strong>100</strong><span>Fixed number of memory samples</span></p><p><strong>About 100 seconds</strong><span>Changes visible on the screen</span></p></div><p>We confirmed the entire path through which PC resource changes are reflected on the actual STM32 LCD, and resolved a board initialization issue so that screen output is maintained even after FreeRTOS startup.</p></div></div>
+    </section>
+
+    <section id="implementation" class="section section-tinted">
+      <div class="container">
+        <div class="section-heading"><p class="eyebrow">IMPLEMENTATION</p><h2>From measured values to on-screen graphs</h2></div>
+        <ol class="flow" aria-label="data processing flow"><li><strong>psutil</strong><span>resource measurement</span></li><li><strong>Python</strong><span>packet generation</span></li><li><strong>UART</strong><span>115200 bps</span></li><li><strong>ISR</strong><span>1 byte received</span></li><li><strong>CommTask</strong><span>Parsing and Saving</span></li><li><strong>BSP LCD</strong><span>Graph update</span></li></ol>
+        <div class="implementation-grid">
+          <article><p class="eyebrow">PROTOCOL</p><h3>readable text frame</h3><pre><code>$CPU:35,RAM:62,NET:120#</code></pre><p><code>$</code>and <code>#</code>identified frame boundaries in the byte stream. It is easy for humans to read, making serial debugging simple, but checksums and strict input range verification leave room for improvement.</p></article>
+          <article><p class="eyebrow">HISTORY</p><h3>fixed size circular buffer</h3><pre><code>cpu[100]  uint8_t
+ram[100]  uint8_t
+net[100]  uint16_t</code></pre><p>Provides chronological order from oldest to newest values, with fixed memory usage and no data movement.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="debugging" class="section container debugging-section">
+      <div class="section-heading"><p class="eyebrow">DEBUGGING</p><h2>Isolate the causes of LCD Bring-up failure step by step</h2><p>Instead of viewing HardFault and screen blanking as a single problem, we divided the initialization path into four steps.</p></div>
+      <ol class="debug-steps"><li><span>01</span><div><h3>Clock</h3><p>We compared the PLL settings with the board example to check for possible SystemClock instability.</p></div></li><li><span>02</span><div><h3>Timebase</h3><p>TIM6 based HAL timebase conflict identified and isolated with SysTick.</p></div></li><li><span>03</span><div><h3>SDRAM</h3><p>BSP_SDRAM_Init() was used to compare the external memory initialization path.</p></div></li><li><span>04</span><div><h3>DSI</h3><p>The panel ON command and initialization order have been rearranged to fit the board example flow.</p></div></li></ol>
+      <div class="debug-result"><strong>Verification result</strong><p>LCD initialization and output worked normally, and screen updates were maintained even after FreeRTOS was started.</p></div>
+    </section>
+
+    <section id="architecture" class="section section-dark">
+      <div class="container improvement-grid">
+        <div><p class="eyebrow">NEXT ITERATION</p><h2>Turning identified limitations into requirements for the next design</h2></div>
+        <div><ul class="plain-list"><li><strong>Minimize ISR</strong><span>In interrupts, received data is safely stored and frame assembly is performed in tasks.</span></li><li><strong>LCD sole ownership</strong><span>Separate communication processing and rendering so that only UI Tasks access the screen</span></li><li><strong>Enhanced parser input validation</strong><span>Verify length, convert numbers, required fields and value ranges, and add checksums or CRCs</span></li></ul></div>
+      </div>
+    </section>
+    <section class="container source-link-section">
+      <p class="technical-caveat"><strong>Source</strong> The implementation of PC resource collection, UART transmission and STM32 LCD output can be found in the public repository below. <a class="text-link" href="https://github.com/MeawMye/stm32-pc-monitor" target="_blank" rel="noreferrer">GitHub Source ↗</a></p>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="container footer-wrap"><a class="text-link" href="index.html#projects">← Return to entire project</a><p>Hayoung Kim · Embedded Software Developer</p></div></footer>
+  <script src="../script.js"></script>
+</body>
+</html>

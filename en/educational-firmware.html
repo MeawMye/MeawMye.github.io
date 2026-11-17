@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="NUCLEO-F429ZI based layered firmware and driver learning project"><title>Educational Firmware | Hayoung Kim</title><link rel="stylesheet" href="../styles.css"></head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="container nav-wrap"><a class="brand" href="index.html">HY<span>.</span></a><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">Menu</button><nav id="primary-nav" class="primary-nav"><a class="active" href="index.html#projects">Projects</a><a href="index.html#skills">Skills</a><a href="about-details.html">Experience</a><a href="index.html#about">About</a><span class="language">KO</span></nav></div></header>
+<main id="main">
+  <section class="project-hero container">
+    <p class="eyebrow">PERSONAL LEARNING PROJECT · STM32</p>
+    <h1>Layered peripheral control<br>and code-level communication debugging</h1>
+    <p>NUCLEO-F429ZI connects USB CDC, USART6 RX DMA and Internal Flash in one application. I also traced the hardware operation of GPIO, EXTI, and UART by reading the HAL source and reference manual.</p>
+    <dl class="project-meta"><div><dt>Role</dt><dd>Personal Project · Full Implementation</dd></div><div><dt>Platform</dt><dd>NUCLEO-F429ZI</dd></div><div><dt>Stack</dt><dd>C · STM32Cube HAL · USB CDC · DMA</dd></div><div><dt>Focus</dt><dd>Layered Firmware · UART · Flash</dd></div></dl>
+  </section>
+
+  <section class="demo-section container" aria-labelledby="demo-title">
+    <div class="demo-heading"><p class="eyebrow">LIVE DEMO</p><h2 id="demo-title">Check command execution and communication bridge operation</h2><p>We executed the Flash erase·write·read command on the USB CDC terminal, switched modes with the button, and confirmed USART6 DMA reception and CDC bridge operation.</p></div>
+    <video controls preload="metadata" poster="assets/educational-firmware-demo.png"><source src="../assets/educational-firmware-demo.mp4" type="video/mp4">Your browser does not support MP4 playback.</video>
+    <p class="media-note">This is actual board demonstration material included in the project PPT and is played as an internal file on the site without external services.</p>
+  </section>
+
+  <section class="section container case-study">
+    <div class="case-block"><p class="case-number">01</p><div><h2>Problem</h2><p>The examples for each peripheral worked, but as functions increased, initialization and control code was mixed into the application, making reuse and cause tracking difficult. When transmitting long data via USB CDC, communication also stopped around 500 bytes.</p></div></div>
+    <div class="case-block"><p class="case-number">02</p><div><h2>My Role</h2><p>We directly implemented the BSP–Driver–Application layer design, USB CDC and UART common interface, USART6 RX DMA, Internal Flash commands and drivers, button mode switching, and demonstration flow.</p></div></div>
+    <div class="case-block"><p class="case-number">03</p><div><h2>Approach</h2><ol class="step-list"><li><strong>Separation</strong><span>Separate responsibilities between board initialization, device control, and application logic</span></li><li><strong>Integration</strong><span>Bundles USB CDC and USART6 into a common UART API and applies RX DMA circular buffer</span></li><li><strong>Control</strong><span>Flash erase·write·read command and sector information configured with driver</span></li><li><strong>Tracing</strong><span>Isolate the cause of the stop by checking CDC transmission/reception status and endpoint reactivation conditions</span></li><li><strong>Comparison</strong><span>Contrast HAL implementation with GPIO, EXTI, and UART register operation</span></li></ol></div></div>
+  </section>
+
+  <section id="architecture" class="section section-tinted"><div class="container">
+    <div class="section-heading"><p class="eyebrow">ARCHITECTURE</p><h2>Separate hardware dependencies and application logic</h2><p>It was structured to reveal the direction of calls and the responsibilities of each layer.</p></div>
+    <ol class="flow"><li><strong>USB CDC</strong><span>Command/Data</span></li><li><strong>Ring Buffer</strong><span>receive archive</span></li><li><strong>UART API</strong><span>common interface</span></li><li><strong>Application</strong><span>Command/Bridge</span></li><li><strong>Driver</strong><span>UART · Flash</span></li><li><strong>BSP / HAL</strong><span>Board/MCU</span></li></ol>
+    <div class="implementation-grid">
+      <article><p class="eyebrow">UART BRIDGE</p><h3>USART6 RX DMA-based forwarding</h3><pre><code>USART6 RX → DMA circular buffer
+USB CDC ↔ Application ↔ USART6
+PG14 TX · PG9 RX · 115200 bps</code></pre><p>Reception is configured with a DMA circular buffer, and transmission is configured with polling. Bridge mode switches with buttons and commands.</p></article>
+      <article><p class="eyebrow">INTERNAL FLASH</p><h3>Sector 11 Test Command</h3><pre><code>Base address  0x080E0000
+Sector        11
+Commands      erase / write / read</code></pre><p>Sector information and access code were separated into drivers, and erase·half-word write·memory-mapped read operations were confirmed using application commands.</p></article>
+    </div>
+  </div></section>
+
+  <section id="debugging" class="section container debugging-section">
+    <div class="section-heading"><p class="eyebrow">DEBUGGING</p><h2>Separate the conditions under which long CDC transmission stops into two points</h2><p>I checked the USB receiving endpoint and CDC transmitting status respectively.</p></div>
+    <ol class="debug-steps"><li><span>01</span><div><h3>phenomenon reproduction</h3><p>We confirmed a condition where communication stops around 500 bytes when transmitting long data.</p></div></li><li><span>02</span><div><h3>Reactivate OUT Endpoint</h3><p>At the time of SOF, I checked the free ring buffer space and prepared the USB OUT endpoint again.</p></div></li><li><span>03</span><div><h3>TX BUSY data retention</h3><p>When CDC transmission is BUSY, it has been supplemented to maintain the transmission destination without consuming DMA RX data.</p></div></li><li><span>04</span><div><h3>Check the actual board</h3><p>I checked the terminal and board to see if long data continues to pass along the bridge flow after the fix.</p></div></li></ol>
+  </section>
+
+  <section class="section section-dark"><div class="container improvement-grid"><div><p class="eyebrow">REGISTER-LEVEL LEARNING</p><h2>Trace register operations behind HAL calls</h2></div><div><ul class="plain-list"><li><strong>GPIO</strong><span>Check mode, output type, speed and pull setting flow</span></li><li><strong>EXTI</strong><span>Analysis of GPIO input, interrupt line, edge trigger, and pending processing</span></li><li><strong>UART</strong><span>Comparison of initialization, baud rate, and DMA requests leading to operation</span></li></ul></div></div></section>
+
+  <section id="result" class="section container">
+    <div class="section-heading"><p class="eyebrow">RESULT &amp; NEXT ITERATION</p><h2>Constructing maintainable structures and verification criteria beyond operational examples</h2><p>USB CDC, DMA UART and Flash were integrated and the cause of communication interruption was separated and modified based on status.</p></div>
+    <div class="its-result-list"><article><span>01</span><div><h3>hierarchical structure</h3><p>Separate responsibilities between board initialization, device control, and application logic.</p></div></article><article><span>02</span><div><h3>Verify integration behavior</h3><p>I verified CDC commands, Flash control, button mode and USART6 DMA bridge on the actual board.</p></div></article><article><span>03</span><div><h3>Next Improvements</h3><p>Blocking UART TX, remaining RX when bridge is OFF, inclusion of Sector 11 of linker, code preservation and odd-length write support when regenerating CubeMX were left as follow-up tasks.</p></div></article></div>
+    <p class="technical-caveat"><strong>Source note</strong> Some pin/Flash information in the repository README is out of date. This page is based on USART6, 115200 bps, Sector 11 configuration from current sources and demonstration materials. <a class="text-link" href="https://github.com/MeawMye/stm32-usbcdc-flash-driver" target="_blank" rel="noreferrer">GitHub Source ↗</a></p>
+  </section>
+</main>
+<footer class="site-footer"><div class="container footer-wrap"><a class="text-link" href="index.html#projects">← Return to entire project</a><p>Hayoung Kim · Embedded Software Developer</p></div></footer><script src="../script.js"></script>
+</body></html>
