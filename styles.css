@@ -316,6 +316,29 @@ code { font-family: Consolas, "Courier New", monospace; }
 .verification-grid figcaption { margin-top: 12px; color: var(--muted); font-size: 13px; text-align: center; }
 .technical-caveat { margin-top: 40px; padding: 22px 0; border-block: 1px solid var(--line); color: var(--muted); }
 .technical-caveat strong { margin-right: 20px; color: var(--ink); }
+.system-map { display: grid; grid-template-columns: 1.35fr .9fr .9fr; gap: 46px; align-items: stretch; margin: 0 0 46px; }
+.system-map > div { position: relative; }
+.system-map > div:not(:last-child)::after { content: "›"; position: absolute; top: 50%; right: -31px; transform: translateY(-50%); color: var(--accent); font-size: 32px; }
+.system-map-sources { display: grid; gap: 12px; }
+.system-map article, .system-map-queue, .system-map-consumer { display: flex; flex-direction: column; justify-content: center; min-height: 118px; padding: 22px; border: 1px solid #ccd3dc; background: var(--white); }
+.system-map small { color: var(--accent); font: 12px Consolas, monospace; letter-spacing: .08em; }
+.system-map strong { margin: 7px 0; color: var(--navy); }
+.system-map span { color: var(--muted); font-size: 14px; }
+.repository-grid { display: grid; grid-template-columns: minmax(320px,.85fr) 1.15fr; gap: 48px; align-items: start; }
+.repository-tree { margin: 0; }
+.file-role-list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.file-role-list li { display: grid; grid-template-columns: 180px 1fr; gap: 20px; padding: 17px 0; border-bottom: 1px solid var(--line); }
+.file-role-list span { color: var(--muted); }
+.result-table-wrap { overflow-x: auto; border: 1px solid var(--line); }
+.result-table { width: 100%; min-width: 620px; border-collapse: collapse; }
+.result-table th, .result-table td { padding: 16px 20px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.result-table th { background: var(--soft); color: var(--navy); font-size: 14px; }
+.result-table tr:last-child td { border-bottom: 0; }
+.result-table td:first-child { width: 32%; font-weight: 700; }
+.limits-panel { margin-top: 32px; padding: 28px 32px; background: var(--soft); }
+.limits-panel h3 { margin-top: 0; }
+.limits-panel ul { margin-bottom: 0; padding-left: 22px; color: var(--muted); }
+.limits-panel li + li { margin-top: 7px; }
 .source-link-section { padding-block: 16px 48px; }
 
 /* Smart Highway ITS case study */
@@ -420,6 +443,10 @@ code { font-family: Consolas, "Courier New", monospace; }
   .debug-hero { gap: 26px; }
   .debug-hero img { max-height: 330px; }
   .technical-caveat strong { display: block; margin-bottom: 6px; }
+  .system-map { grid-template-columns: 1fr; gap: 14px; }
+  .system-map > div:not(:last-child)::after { display: none; }
+  .repository-grid { grid-template-columns: 1fr; }
+  .file-role-list li { grid-template-columns: 1fr; gap: 4px; }
   .its-hero { gap: 28px; }
   .video-evidence-grid { grid-template-columns: 1fr; }
   .video-evidence-grid article.wide { grid-column: auto; }

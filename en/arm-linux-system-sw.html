@@ -9,7 +9,7 @@
     <p class="eyebrow">PERSONAL PROJECT · ARM LINUX SYSTEM SOFTWARE</p>
     <h1>Connecting userspace, the Linux kernel,<br>Device Tree, and virtual hardware</h1>
     <p>Booted a Buildroot-based ARM64 Linux system on QEMU, implemented a Device Tree-matched platform driver and character device, and connected them to a multithreaded system monitoring program that processes system statistics and device events through one queue.</p>
-    <dl class="project-meta"><div><dt>Role</dt><dd>Personal project · Full implementation</dd></div><div><dt>Platform</dt><dd>QEMU virt · ARM64</dd></div><div><dt>Environment</dt><dd>Buildroot · Linux 6.12.27 · BusyBox</dd></div><div><dt>Stack</dt><dd>C · pthread · poll · Device Tree</dd></div></dl>
+    <dl class="project-meta"><div><dt>Role</dt><dd>Design · Implementation · Build · Deployment · Debugging</dd></div><div><dt>Host</dt><dd>Ubuntu 24.04 · VirtualBox · QEMU 8.2.2</dd></div><div><dt>Target</dt><dd>ARM64 · Linux 6.12.27 · Buildroot · BusyBox</dd></div><div><dt>Stack</dt><dd>C · pthread · poll · miscdevice · Device Tree</dd></div></dl>
   </section>
   <section class="section container case-study">
     <div class="case-block"><p class="case-number">01</p><div><h2>Problem and goal</h2><p>Learning Linux drivers and Device Tree as isolated features did not make the complete execution path clear. I set out to connect ARM64 Linux boot, the kernel driver, device-event handling, and the userspace program as one observable system flow.</p></div></div>
@@ -18,9 +18,27 @@
   </section>
   <section class="section section-tinted"><div class="container">
     <div class="section-heading"><p class="eyebrow">SYSTEM FLOW</p><h2>From application requests to virtual hardware</h2><p>System statistics and device events enter through separate paths and are delivered to one consumer.</p></div>
-    <ol class="flow"><li><strong>Userspace</strong><span>/proc · poll</span></li><li><strong>VFS</strong><span>read · write</span></li><li><strong>miscdevice</strong><span>ring buffer</span></li><li><strong>Platform Driver</strong><span>probe · remove</span></li><li><strong>Device Tree</strong><span>compatible</span></li><li><strong>QEMU GPIO</strong><span>PL061</span></li></ol>
+    <div class="system-map" aria-label="System data-flow block diagram"><div class="system-map-sources"><article><small>PRODUCER 01</small><strong>/proc/stat · /proc/meminfo</strong><span>Collects CPU and memory data every second</span></article><article><small>PRODUCER 02</small><strong>/dev/mydevice</strong><span>Waits with poll() and reads device events</span></article></div><div class="system-map-queue"><small>SHARED BOUNDED QUEUE</small><strong>16 entries</strong><span>mutex · not_empty · not_full</span><span>Tagged union separates record types</span></div><div class="system-map-consumer"><small>CONSUMER</small><strong>Type-specific output</strong><span>Termination coordinated with active_producers and stop_requested</span></div></div>
+    <ol class="flow"><li><strong>Userspace</strong><span>read · write · poll</span></li><li><strong>VFS / file_operations</strong><span>Maps requests to driver callbacks</span></li><li><strong>miscdevice</strong><span>256-byte ring buffer</span></li><li><strong>Platform Driver</strong><span>probe · remove</span></li><li><strong>Device Tree</strong><span>demo,mydevice</span></li><li><strong>QEMU GPIO</strong><span>PL061</span></li></ol>
     <div class="implementation-grid"><article><p class="eyebrow">KERNEL SPACE</p><h3>Character device and readiness notification</h3><pre><code>/dev/mydevice&#10;256-byte circular buffer&#10;mutex + wait queue&#10;POLLIN / POLLOUT</code></pre><p>Empty and full buffer conditions return EAGAIN, while wait queues notify poll waiters when data or buffer space becomes available.</p></article><article><p class="eyebrow">USER SPACE</p><h3>Multithreaded system monitoring program</h3><pre><code>/proc producer&#10;/device producer&#10;bounded queue (16)&#10;consumer</code></pre><p>A tagged union separates system statistics from device events, while a mutex and condition variables coordinate producer-consumer flow and termination.</p></article></div>
   </div></section>
+  <section class="section container repository-section">
+    <div class="section-heading"><p class="eyebrow">REPOSITORY</p><h2>Implementation locations and file responsibilities</h2><p>Kernel, Device Tree, and userspace code are separated so that the system layers remain visible in the repository structure.</p></div>
+    <div class="repository-grid"><pre class="repository-tree"><code>arm-linux-system-sw-lab/
+├─ devicetree/
+│  ├─ qemu-virt.dts
+│  ├─ qemu-virt.dtb
+│  ├─ qemu-mydevice.dts
+│  └─ qemu-mydevice.dtb
+├─ kernel/
+│  └─ mydevice/
+│     ├─ Makefile
+│     └─ mydevice.c
+├─ userspace/
+│  ├─ monitor_daemon.c
+│  └─ poll_test.c
+└─ README.md</code></pre><ul class="file-role-list"><li><strong>mydevice.c</strong><span>file_operations, circular buffer, wait queue, platform driver, and GPIO descriptor lifecycle</span></li><li><strong>qemu-mydevice.dts</strong><span>Connects the demo,mydevice node to a PL061 GPIO resource</span></li><li><strong>monitor_daemon.c</strong><span>System monitoring program with two producers, a bounded queue, and one consumer</span></li><li><strong>poll_test.c</strong><span>Checks POLLIN/POLLOUT readiness and timeout behavior</span></li></ul></div>
+  </section>
   <section class="section container debugging-section">
     <div class="section-heading"><p class="eyebrow">DEBUGGING</p><h2>Tracing why the registered driver's probe did not run</h2><p>The investigation expanded from driver code to the Device Tree actually used by the guest and the QEMU boot arguments.</p></div>
     <ol class="debug-steps"><li><span>01</span><div><h3>Observed symptom</h3><p>The platform driver registration message appeared, but probe was not called and /dev/mydevice was not created.</p></div></li><li><span>02</span><div><h3>Compared the runtime setup</h3><p>I checked not only the Device Tree source but also the DTB and command-line options used for the actual QEMU boot.</p></div></li><li><span>03</span><div><h3>Found the cause</h3><p>The modified qemu-mydevice.dtb was not passed with the -dtb option, so no matching platform device existed in the guest.</p></div></li><li><span>04</span><div><h3>Applied and checked the fix</h3><p>After adding the DTB to the QEMU command, I confirmed the probe log and /dev/mydevice creation.</p></div></li></ol>
@@ -28,7 +46,8 @@
   <section class="section section-dark"><div class="container improvement-grid"><div><p class="eyebrow">LEARNING</p><h2>Separating driver registration from device binding</h2></div><div><p>A successful platform_driver_register() only registers the driver; it does not prove that a matching device exists or that probe has run. The investigation therefore needs to include boot configuration and the hardware description used at runtime.</p></div></div></section>
   <section class="section container">
     <div class="section-heading"><p class="eyebrow">RESULT &amp; LIMITS</p><h2>Checked the end-to-end functional path and final state</h2><p>After platform-driver binding, system statistics and a device event were delivered through the queue to the consumer.</p></div>
-    <div class="its-result-list"><article><span>01</span><div><h3>System statistics</h3><p>Collected 30 CPU and memory samples from /proc/stat and /proc/meminfo.</p></div></article><article><span>02</span><div><h3>Device event</h3><p>The five-byte message hello traveled from /dev/mydevice through poll and read to the consumer.</p></div></article><article><span>03</span><div><h3>Final state</h3><p>After both producers finished, the remaining queue occupancy and active producer count were both zero.</p></div></article></div>
+    <div class="result-table-wrap"><table class="result-table"><thead><tr><th>Check</th><th>Observed result</th></tr></thead><tbody><tr><td>Platform-driver binding</td><td>probe ran and /dev/mydevice was created</td></tr><tr><td>Character device</td><td>Basic I/O, wrap-around, partial writes, and EAGAIN on empty/full states</td></tr><tr><td>poll readiness</td><td>POLLIN/POLLOUT waiting and wake-up observed</td></tr><tr><td>CPU and memory collection</td><td>30 samples collected</td></tr><tr><td>Device event</td><td>Five-byte hello message delivered to the consumer</td></tr><tr><td>Final program state</td><td>Queue occupancy 0 · active producers 0</td></tr></tbody></table></div>
+    <div class="limits-panel"><h3>Limits and next improvements</h3><ul><li>Add separate runtime logs and state evidence for GPIO output switching</li><li>Repeat queue saturation and backpressure tests</li><li>Run long-duration and race-condition checks</li><li>Clean up already-created threads after partial thread-creation failure</li><li>Automate QEMU launch and regression tests</li></ul></div>
     <p class="technical-caveat"><strong>Scope of evidence</strong> The GPIO resource connection and control path through Device Tree are implemented, but separate runtime evidence for GPIO output switching and long-duration or load testing are not yet included. <a class="text-link" href="https://github.com/MeawMye/arm-linux-system-sw-lab" target="_blank" rel="noreferrer">GitHub Source ↗</a></p>
   </section>
 </main>

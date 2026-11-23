@@ -9,7 +9,7 @@
     <p class="eyebrow">PERSONAL PROJECT · ARM LINUX SYSTEM SOFTWARE</p>
     <h1>Userspace부터 Device Tree까지 연결한<br>ARM Linux 시스템 소프트웨어</h1>
     <p>QEMU ARM64에서 Buildroot 기반 Linux를 부팅하고 Device Tree 기반 플랫폼 드라이버와 문자 디바이스를 구현했습니다. 이어서 시스템 정보와 장치 이벤트를 하나의 큐로 처리하는 멀티스레드 시스템 모니터링 프로그램까지 연결했습니다.</p>
-    <dl class="project-meta"><div><dt>Role</dt><dd>개인 프로젝트 · 전체 구현</dd></div><div><dt>Platform</dt><dd>QEMU virt · ARM64</dd></div><div><dt>Environment</dt><dd>Buildroot · Linux 6.12.27 · BusyBox</dd></div><div><dt>Stack</dt><dd>C · pthread · poll · Device Tree</dd></div></dl>
+    <dl class="project-meta"><div><dt>Role</dt><dd>설계 · 구현 · 빌드 · 배포 · 문제 추적</dd></div><div><dt>Host</dt><dd>Ubuntu 24.04 · VirtualBox · QEMU 8.2.2</dd></div><div><dt>Target</dt><dd>ARM64 · Linux 6.12.27 · Buildroot · BusyBox</dd></div><div><dt>Stack</dt><dd>C · pthread · poll · miscdevice · Device Tree</dd></div></dl>
   </section>
   <section class="section container case-study">
     <div class="case-block"><p class="case-number">01</p><div><h2>문제 상황과 목표</h2><p>Linux 드라이버와 Device Tree를 개별 기능으로 학습하는 것만으로는 애플리케이션의 요청이 커널과 하드웨어 표현까지 어떻게 이어지는지 파악하기 어려웠습니다. ARM64 Linux 부팅부터 커널 드라이버, 장치 이벤트 처리와 userspace 프로그램까지 하나의 흐름으로 연결하는 것을 목표로 삼았습니다.</p></div></div>
@@ -18,9 +18,27 @@
   </section>
   <section class="section section-tinted"><div class="container">
     <div class="section-heading"><p class="eyebrow">SYSTEM FLOW</p><h2>애플리케이션 요청에서 가상 하드웨어까지</h2><p>시스템 정보와 장치 이벤트가 서로 다른 경로에서 수집되어 하나의 소비자에게 전달됩니다.</p></div>
-    <ol class="flow"><li><strong>Userspace</strong><span>/proc · poll</span></li><li><strong>VFS</strong><span>read · write</span></li><li><strong>miscdevice</strong><span>ring buffer</span></li><li><strong>Platform Driver</strong><span>probe · remove</span></li><li><strong>Device Tree</strong><span>compatible</span></li><li><strong>QEMU GPIO</strong><span>PL061</span></li></ol>
+    <div class="system-map" aria-label="시스템 데이터 흐름 블록도"><div class="system-map-sources"><article><small>PRODUCER 01</small><strong>/proc/stat · /proc/meminfo</strong><span>CPU·메모리 정보 1초 주기 수집</span></article><article><small>PRODUCER 02</small><strong>/dev/mydevice</strong><span>poll() 대기 후 장치 이벤트 읽기</span></article></div><div class="system-map-queue"><small>SHARED BOUNDED QUEUE</small><strong>16 entries</strong><span>mutex · not_empty · not_full</span><span>tagged union으로 데이터 유형 구분</span></div><div class="system-map-consumer"><small>CONSUMER</small><strong>유형별 출력</strong><span>active_producers와 stop_requested로 종료 조정</span></div></div>
+    <ol class="flow"><li><strong>Userspace</strong><span>read · write · poll</span></li><li><strong>VFS / file_operations</strong><span>요청과 드라이버 함수 연결</span></li><li><strong>miscdevice</strong><span>256-byte ring buffer</span></li><li><strong>Platform Driver</strong><span>probe · remove</span></li><li><strong>Device Tree</strong><span>demo,mydevice</span></li><li><strong>QEMU GPIO</strong><span>PL061</span></li></ol>
     <div class="implementation-grid"><article><p class="eyebrow">KERNEL SPACE</p><h3>문자 디바이스와 준비 상태 전달</h3><pre><code>/dev/mydevice&#10;256-byte circular buffer&#10;mutex + wait queue&#10;POLLIN / POLLOUT</code></pre><p>빈 버퍼와 가득 찬 버퍼의 상태를 EAGAIN으로 처리하고, 데이터와 여유 공간의 변화는 wait queue를 통해 poll 대기자에게 알렸습니다.</p></article><article><p class="eyebrow">USER SPACE</p><h3>멀티스레드 시스템 모니터링 프로그램</h3><pre><code>/proc producer&#10;/device producer&#10;bounded queue (16)&#10;consumer</code></pre><p>CPU·메모리 정보와 장치 이벤트를 tagged union으로 구분하고, mutex와 condition variable로 생산자–소비자 흐름 및 종료 조건을 관리했습니다.</p></article></div>
   </div></section>
+  <section class="section container repository-section">
+    <div class="section-heading"><p class="eyebrow">REPOSITORY</p><h2>구현 위치와 각 파일의 역할</h2><p>커널, Device Tree와 userspace 코드를 분리해 시스템의 각 계층을 저장소 구조에서도 확인할 수 있도록 구성했습니다.</p></div>
+    <div class="repository-grid"><pre class="repository-tree"><code>arm-linux-system-sw-lab/
+├─ devicetree/
+│  ├─ qemu-virt.dts
+│  ├─ qemu-virt.dtb
+│  ├─ qemu-mydevice.dts
+│  └─ qemu-mydevice.dtb
+├─ kernel/
+│  └─ mydevice/
+│     ├─ Makefile
+│     └─ mydevice.c
+├─ userspace/
+│  ├─ monitor_daemon.c
+│  └─ poll_test.c
+└─ README.md</code></pre><ul class="file-role-list"><li><strong>mydevice.c</strong><span>file_operations, 원형 버퍼, wait queue, 플랫폼 드라이버와 GPIO descriptor 관리</span></li><li><strong>qemu-mydevice.dts</strong><span>demo,mydevice 노드와 PL061 GPIO resource 연결</span></li><li><strong>monitor_daemon.c</strong><span>두 생산자, bounded queue와 소비자로 구성한 시스템 모니터링 프로그램</span></li><li><strong>poll_test.c</strong><span>POLLIN·POLLOUT 준비 상태와 timeout 동작 확인</span></li></ul></div>
+  </section>
   <section class="section container debugging-section">
     <div class="section-heading"><p class="eyebrow">DEBUGGING</p><h2>등록된 드라이버의 probe가 실행되지 않은 원인 추적</h2><p>드라이버 코드에서 시작해 실제 guest가 사용한 Device Tree와 QEMU 부팅 인자까지 확인 범위를 넓혔습니다.</p></div>
     <ol class="debug-steps"><li><span>01</span><div><h3>현상 확인</h3><p>플랫폼 드라이버 등록 로그는 있었지만 probe가 호출되지 않았고 /dev/mydevice도 생성되지 않았습니다.</p></div></li><li><span>02</span><div><h3>실행 환경 대조</h3><p>소스의 Device Tree 노드뿐 아니라 QEMU가 부팅 시 실제로 사용한 DTB와 실행 옵션을 확인했습니다.</p></div></li><li><span>03</span><div><h3>원인 확인</h3><p>수정한 qemu-mydevice.dtb가 -dtb 옵션으로 전달되지 않아 guest에 matching 대상 platform device가 존재하지 않았습니다.</p></div></li><li><span>04</span><div><h3>수정 및 확인</h3><p>QEMU 실행 명령에 DTB를 명시한 뒤 probe 로그와 /dev/mydevice 생성을 확인했습니다.</p></div></li></ol>
@@ -28,7 +46,8 @@
   <section class="section section-dark"><div class="container improvement-grid"><div><p class="eyebrow">LEARNING</p><h2>드라이버 등록과 장치 결합을 구분</h2></div><div><p>platform_driver_register()의 성공은 드라이버 등록을 의미할 뿐, Device Tree에 일치하는 장치가 존재해 probe가 실행되었다는 뜻은 아닙니다. 문제 범위를 코드 밖의 부팅 구성과 실제 하드웨어 표현까지 확장해야 한다는 점을 확인했습니다.</p></div></div></section>
   <section class="section container">
     <div class="section-heading"><p class="eyebrow">RESULT &amp; LIMITS</p><h2>전체 경로의 기능 동작과 종료 상태 확인</h2><p>플랫폼 드라이버 binding 후 시스템 정보와 장치 이벤트가 큐를 거쳐 소비자에게 전달되는 흐름을 확인했습니다.</p></div>
-    <div class="its-result-list"><article><span>01</span><div><h3>시스템 정보 수집</h3><p>/proc/stat과 /proc/meminfo에서 CPU·메모리 정보를 30회 수집했습니다.</p></div></article><article><span>02</span><div><h3>장치 이벤트 전달</h3><p>/dev/mydevice에 기록한 hello 5바이트가 poll과 read를 거쳐 소비자에게 전달되었습니다.</p></div></article><article><span>03</span><div><h3>종료 상태</h3><p>모든 생산자 종료 후 큐 잔여 데이터와 활성 생산자 수가 각각 0인 것을 확인했습니다.</p></div></article></div>
+    <div class="result-table-wrap"><table class="result-table"><thead><tr><th>확인 항목</th><th>관찰 결과</th></tr></thead><tbody><tr><td>플랫폼 드라이버 binding</td><td>probe 실행 및 /dev/mydevice 생성</td></tr><tr><td>문자 디바이스</td><td>기본 read/write, wrap-around, 부분 쓰기, 빈·가득 찬 버퍼의 EAGAIN 확인</td></tr><tr><td>poll 준비 상태</td><td>POLLIN·POLLOUT 대기와 wake-up 확인</td></tr><tr><td>CPU·메모리 수집</td><td>30개 샘플 수집</td></tr><tr><td>장치 이벤트</td><td>hello 5바이트가 소비자까지 전달</td></tr><tr><td>프로그램 종료 상태</td><td>큐 잔여 데이터 0 · 활성 생산자 0</td></tr></tbody></table></div>
+    <div class="limits-panel"><h3>한계와 다음 개선 항목</h3><ul><li>GPIO 출력 전환의 별도 실행 로그와 하드웨어 상태 확인 보강</li><li>큐 포화와 backpressure 상황의 반복 시험</li><li>장시간 실행과 race condition 점검</li><li>스레드 일부 생성 실패 시 이미 생성된 스레드 정리 처리</li><li>QEMU 실행과 회귀 시험 자동화</li></ul></div>
     <p class="technical-caveat"><strong>확인 범위</strong> Device Tree를 통한 GPIO resource 연결과 제어 경로는 구현했지만, GPIO 출력 전환의 별도 실행 증거와 장시간·부하 시험은 아직 포함하지 않았습니다. <a class="text-link" href="https://github.com/MeawMye/arm-linux-system-sw-lab" target="_blank" rel="noreferrer">GitHub Source ↗</a></p>
   </section>
 </main>
