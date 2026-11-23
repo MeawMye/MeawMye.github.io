@@ -6,12 +6,18 @@ if (languageMarker) {
   const english = window.location.pathname.includes('/en/');
   const lastSegment = window.location.pathname.split('/').filter(Boolean).at(-1) || '';
   const fileName = lastSegment.endsWith('.html') ? lastSegment : 'index.html';
-  const counterpart = english ? `../${fileName}${window.location.hash}` : `en/${fileName}${window.location.hash}`;
+  const isHome = fileName === 'index.html';
+  const explicitLanguage = new URLSearchParams(window.location.search).get('lang');
+  const counterpartPath = english ? '../' + fileName : 'en/' + fileName;
+  const counterpartQuery = english && isHome ? '?lang=ko' : '';
+  const counterpart = counterpartPath + counterpartQuery + window.location.hash;
   let savedLanguage = null;
   try {
     savedLanguage = window.localStorage.getItem('portfolio-language');
   } catch {}
-  const preferredLanguage = savedLanguage || 'en';
+  const preferredLanguage = isHome && !explicitLanguage
+    ? 'en'
+    : explicitLanguage || savedLanguage || 'en';
 
   if ((preferredLanguage === 'en') !== english) {
     window.location.replace(counterpart);
