@@ -11,9 +11,7 @@ if (languageMarker) {
   try {
     savedLanguage = window.localStorage.getItem('portfolio-language');
   } catch {}
-  const browserLanguages = navigator.languages?.length ? navigator.languages : [navigator.language];
-  const browserLanguage = browserLanguages.some((language) => language?.toLowerCase().startsWith('ko')) ? 'ko' : 'en';
-  const preferredLanguage = savedLanguage || browserLanguage;
+  const preferredLanguage = savedLanguage || 'en';
 
   if ((preferredLanguage === 'en') !== english) {
     window.location.replace(counterpart);
