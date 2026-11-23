@@ -47,7 +47,7 @@
   <section class="section container">
     <div class="section-heading"><p class="eyebrow">RESULT &amp; LIMITS</p><h2>전체 경로의 기능 동작과 종료 상태 확인</h2><p>플랫폼 드라이버 binding 후 시스템 정보와 장치 이벤트가 큐를 거쳐 소비자에게 전달되는 흐름을 확인했습니다.</p></div>
     <div class="result-table-wrap"><table class="result-table"><thead><tr><th>확인 항목</th><th>관찰 결과</th></tr></thead><tbody><tr><td>플랫폼 드라이버 binding</td><td>probe 실행 및 /dev/mydevice 생성</td></tr><tr><td>문자 디바이스</td><td>기본 read/write, wrap-around, 부분 쓰기, 빈·가득 찬 버퍼의 EAGAIN 확인</td></tr><tr><td>poll 준비 상태</td><td>POLLIN·POLLOUT 대기와 wake-up 확인</td></tr><tr><td>CPU·메모리 수집</td><td>30개 샘플 수집</td></tr><tr><td>장치 이벤트</td><td>hello 5바이트가 소비자까지 전달</td></tr><tr><td>프로그램 종료 상태</td><td>큐 잔여 데이터 0 · 활성 생산자 0</td></tr></tbody></table></div>
-    <div class="limits-panel"><h3>한계와 다음 개선 항목</h3><ul><li>GPIO 출력 전환의 별도 실행 로그와 하드웨어 상태 확인 보강</li><li>큐 포화와 backpressure 상황의 반복 시험</li><li>장시간 실행과 race condition 점검</li><li>스레드 일부 생성 실패 시 이미 생성된 스레드 정리 처리</li><li>코드 수정 후 부팅·드라이버 연결·입출력 기능을 다시 확인하는 자동화 스크립트 구성</li></ul></div>
+    <div class="limits-panel"><h3>한계와 다음 개선 항목</h3><ul><li>GPIO 출력 전환의 별도 실행 로그와 하드웨어 상태 확인 보강</li><li>큐 포화와 backpressure 상황의 반복 시험</li><li>장시간 실행 시 공유 큐와 종료 상태가 스레드 간에 안정적으로 처리되는지 점검</li><li>스레드 일부 생성 실패 시 이미 생성된 스레드 정리 처리</li><li>코드 수정 후 부팅·드라이버 연결·입출력 기능을 다시 확인하는 자동화 스크립트 구성</li></ul></div>
     <p class="technical-caveat"><strong>확인 범위</strong> Device Tree를 통한 GPIO resource 연결과 제어 경로는 구현했지만, GPIO 출력 전환의 별도 실행 증거와 장시간·부하 시험은 아직 포함하지 않았습니다. <a class="text-link" href="https://github.com/MeawMye/arm-linux-system-sw-lab" target="_blank" rel="noreferrer">GitHub Source ↗</a></p>
   </section>
 </main>
