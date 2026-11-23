@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
+  <title id="title">ARM Linux system software flow</title>
+  <desc id="desc">Userspace, Linux kernel, Device Tree and QEMU GPIO connected in one system flow</desc>
+  <rect width="960" height="600" fill="#0d1b2a"/>
+  <g fill="none" stroke="#4da3ff" stroke-width="3">
+    <path d="M240 300H340M620 300H720"/>
+    <path d="M480 210V145M480 390V455"/>
+  </g>
+  <g fill="#14283d" stroke="#315170" stroke-width="2">
+    <rect x="55" y="220" width="185" height="160" rx="12"/>
+    <rect x="340" y="210" width="280" height="180" rx="12"/>
+    <rect x="720" y="220" width="185" height="160" rx="12"/>
+    <rect x="350" y="55" width="260" height="90" rx="12"/>
+    <rect x="350" y="455" width="260" height="90" rx="12"/>
+  </g>
+  <g fill="#e9f2fb" font-family="Arial, sans-serif" text-anchor="middle">
+    <text x="147" y="270" font-size="19" font-weight="700">USERSPACE</text>
+    <text x="147" y="307" font-size="16">/proc · poll() · pthread</text>
+    <text x="147" y="337" font-size="16">monitoring program</text>
+    <text x="480" y="267" font-size="19" font-weight="700">LINUX KERNEL</text>
+    <text x="480" y="306" font-size="16">miscdevice · ring buffer</text>
+    <text x="480" y="336" font-size="16">mutex · wait queue</text>
+    <text x="812" y="270" font-size="19" font-weight="700">PLATFORM</text>
+    <text x="812" y="307" font-size="16">driver · GPIO</text>
+    <text x="812" y="337" font-size="16">descriptor</text>
+    <text x="480" y="92" font-size="18" font-weight="700">DEVICE TREE</text>
+    <text x="480" y="121" font-size="15">demo,mydevice</text>
+    <text x="480" y="492" font-size="18" font-weight="700">QEMU ARM64</text>
+    <text x="480" y="521" font-size="15">Buildroot · Linux 6.12</text>
+  </g>
+</svg>
