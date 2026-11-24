@@ -11,13 +11,15 @@ if (languageMarker) {
   const counterpartPath = english ? '../' + fileName : 'en/' + fileName;
   const counterpartQuery = english && isHome ? '?lang=ko' : '';
   const counterpart = counterpartPath + counterpartQuery + window.location.hash;
+  const languageStorageKey = 'portfolio-language-v2';
   let savedLanguage = null;
   try {
-    savedLanguage = window.localStorage.getItem('portfolio-language');
+    if (explicitLanguage === 'ko' || explicitLanguage === 'en') {
+      window.localStorage.setItem(languageStorageKey, explicitLanguage);
+    }
+    savedLanguage = window.localStorage.getItem(languageStorageKey);
   } catch {}
-  const preferredLanguage = isHome && !explicitLanguage
-    ? 'en'
-    : explicitLanguage || savedLanguage || 'en';
+  const preferredLanguage = explicitLanguage || savedLanguage || 'en';
 
   if ((preferredLanguage === 'en') !== english) {
     window.location.replace(counterpart);
@@ -32,7 +34,7 @@ if (languageMarker) {
   other.setAttribute('aria-label', english ? '한국어로 보기' : 'View in English');
   other.addEventListener('click', () => {
     try {
-      window.localStorage.setItem('portfolio-language', english ? 'ko' : 'en');
+      window.localStorage.setItem(languageStorageKey, english ? 'ko' : 'en');
     } catch {}
   });
   languageMarker.className = 'language-switch';
