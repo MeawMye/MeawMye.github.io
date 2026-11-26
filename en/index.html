@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Hayoung Kim's portfolio of STM32 firmware and embedded Linux projects"><title>Hayoung Kim | Embedded Software Developer</title><link rel="stylesheet" href="../styles.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Hayoung Kim's portfolio of STM32 firmware and embedded Linux projects"><title>Hayoung Kim | Embedded Software Developer</title><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="../project-journey.css?v=4"></head>
 <body class="portfolio-home">
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header"><div class="container nav-wrap"><a class="brand" href="#top" aria-label="Back to top">HY<span>.</span></a><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">Menu</button><nav id="primary-nav" class="primary-nav"><a href="#projects">Projects</a><a href="#skills">Skills</a><a href="about-details.html">Experience</a><a href="#about">About</a><span class="language">KO</span></nav></div></header>
@@ -12,12 +12,54 @@
 
   <section id="projects" class="section container">
     <div class="section-heading"><p class="eyebrow">PROJECTS</p><h2>Projects built around problems and solutions</h2><p>Projects are presented in the order they were completed. Each overview connects the problem, my role, the approach, and the outcome to a detailed case study.</p></div>
-    <div class="home-project-grid">
-      <article class="home-project-card"><img src="../assets/pc-monitor-demo.png" alt="PC resource information displayed as STM32 LCD graph"><div class="home-project-body"><p class="project-index">01 · PERSONAL PROJECT</p><h3>STM32 PC Monitor</h3><p>PC resource information was transmitted to UART and visualized as a real-time graph on the STM32 LCD. I personally implemented everything from data collection to MCU reception, storage, and output.</p><ul class="tag-list"><li>STM32F729I-DISCO</li><li>FreeRTOS</li><li>UART</li><li>Python</li></ul><a class="text-link" href="pc-monitor.html">View detailed course →</a></div></article>
-      <article class="home-project-card"><img src="../assets/educational-firmware-demo.png" alt="STM32 educational firmware demonstration screen"><div class="home-project-body"><p class="project-index">02 · PERSONAL PROJECT</p><h3>Educational Firmware</h3><p>We implemented USB CDC, DMA-based UART, and internal Flash in a hierarchical structure and traced the cause of communication interruption that occurred during long data transmission.</p><ul class="tag-list"><li>NUCLEO-F429ZI</li><li>USB CDC</li><li>DMA</li><li>Flash</li></ul><a class="text-link" href="educational-firmware.html">View detailed course →</a></div></article>
-      <article class="home-project-card"><img src="../assets/debugging-top.png" alt="Embedded Linux system debugging material screen"><div class="home-project-body"><p class="project-index">03 · SYSTEM DEBUGGING</p><h3>System-level Debugging</h3><p>By looking at the logs and process status together, we narrowed down memory pressure on the embedded Linux system to the main cause and compared the status before and after the change.</p><ul class="tag-list"><li>Embedded Linux</li><li>ARM64</li><li>System Logs</li><li>Memory</li></ul><a class="text-link" href="system-debugging.html">View analysis process →</a></div></article>
-      <article class="home-project-card"><img src="../assets/its-overview.png" alt="Smart Highway ITS object recognition and tracking screen"><div class="home-project-body"><p class="project-index">04 · TEAM PROJECT</p><h3>Smart Highway ITS</h3><p>We implemented a vehicle counter by connecting object tracking data, and analyzed the causes of duplicate counting and missing phenomena and directions for improvement.</p><ul class="tag-list"><li>NPU</li><li>ByteTrack</li><li>YOLOv8</li><li>Wayland/EGL</li></ul><a class="text-link" href="smart-highway-its.html">View contributions →</a></div></article>
-      <article class="home-project-card"><img src="../assets/arm-linux-system-sw.svg" alt="ARM Linux system software data flow diagram"><div class="home-project-body"><p class="project-index">05 · PERSONAL PROJECT</p><h3>ARM Linux System SW Lab</h3><p>Built a Device Tree-based platform driver and character device on QEMU ARM64, then connected them to a multithreaded program that handles system statistics and device events.</p><ul class="tag-list"><li>ARM64</li><li>Linux Kernel</li><li>Device Tree</li><li>pthread</li></ul><a class="text-link" href="arm-linux-system-sw.html">View case study →</a></div></article>
+    <div class="project-journey">
+      <div class="journey-row">
+        <article class="home-project-card"><img src="../assets/educational-firmware-demo.png" alt="STM32 educational firmware demonstration screen"><div class="home-project-body"><p class="project-index">01 · PERSONAL PROJECT</p><h3>Educational Firmware</h3><p>We implemented USB CDC, DMA-based UART, and internal Flash in a hierarchical structure and traced the cause of communication interruption that occurred during long data transmission.</p><ul class="tag-list"><li>NUCLEO-F429ZI</li><li>USB CDC</li><li>DMA</li><li>Flash</li></ul><a class="text-link" href="educational-firmware.html">View detailed course →</a></div></article>
+        <div class="journey-track">
+          <div class="journey-note">
+            <h4>Understanding STM32 initialization</h4>
+            <p>I used course examples to learn STM32 firmware, then compared HAL code with datasheets to see how peripherals are initialized.</p>
+          </div>
+        </div>
+      </div>
+      <div class="journey-row">
+        <article class="home-project-card"><img src="../assets/pc-monitor-demo.png" alt="PC resource information displayed as STM32 LCD graph"><div class="home-project-body"><p class="project-index">02 · PERSONAL PROJECT</p><h3>STM32 PC Monitor</h3><p>PC resource information was transmitted to UART and visualized as a real-time graph on the STM32 LCD. I personally implemented everything from data collection to MCU reception, storage, and output.</p><ul class="tag-list"><li>STM32F729I-DISCO</li><li>FreeRTOS</li><li>UART</li><li>Python</li></ul><a class="text-link" href="pc-monitor.html">View detailed course →</a></div></article>
+        <div class="journey-track">
+          <div class="journey-note">
+            <h4>Applying what I learned to a PC monitor</h4>
+            <p>I wanted to build something I could use every day, so I made an STM32 monitor that displays PC resource usage.</p>
+          </div>
+        </div>
+      </div>
+      <div class="journey-row">
+        <article class="home-project-card"><img src="../assets/debugging-top.png" alt="Embedded Linux system debugging material screen"><div class="home-project-body"><p class="project-index">03 · SYSTEM DEBUGGING</p><h3>System-level Debugging</h3><p>By looking at the logs and process status together, we narrowed down memory pressure on the embedded Linux system to the main cause and compared the status before and after the change.</p><ul class="tag-list"><li>Embedded Linux</li><li>ARM64</li><li>System Logs</li><li>Memory</li></ul><a class="text-link" href="system-debugging.html">View analysis process →</a></div></article>
+        <div class="journey-track">
+          <div class="journey-note">
+            <h4>Narrowing down the cause with system logs</h4>
+            <p>The display froze and the SSH connection dropped.</p>
+            <p>I learned to use memory metrics and system logs together to narrow down the cause.</p>
+          </div>
+        </div>
+      </div>
+      <div class="journey-row">
+        <article class="home-project-card"><img src="../assets/its-overview.png" alt="Smart Highway ITS object recognition and tracking screen"><div class="home-project-body"><p class="project-index">04 · TEAM PROJECT</p><h3>Smart Highway ITS</h3><p>We implemented a vehicle counter by connecting object tracking data, and analyzed the causes of duplicate counting and missing phenomena and directions for improvement.</p><ul class="tag-list"><li>NPU</li><li>ByteTrack</li><li>YOLOv8</li><li>Wayland/EGL</li></ul><a class="text-link" href="smart-highway-its.html">View contributions →</a></div></article>
+        <div class="journey-track">
+          <div class="journey-note">
+            <h4>Finding where the team’s code fits</h4>
+            <p>I traced the existing data pipeline to work out where our team’s code needed to connect.</p>
+          </div>
+        </div>
+      </div>
+      <div class="journey-row">
+        <article class="home-project-card"><img src="../assets/arm-linux-system-sw.svg" alt="ARM Linux system software data flow diagram"><div class="home-project-body"><p class="project-index">05 · PERSONAL PROJECT</p><h3>ARM Linux System SW Lab</h3><p>Built a Device Tree-based platform driver and character device on QEMU ARM64, then connected them to a multithreaded program that handles system statistics and device events.</p><ul class="tag-list"><li>ARM64</li><li>Linux Kernel</li><li>Device Tree</li><li>pthread</li></ul><a class="text-link" href="arm-linux-system-sw.html">View case study →</a></div></article>
+        <div class="journey-track">
+          <div class="journey-note">
+            <h4>Building an ARM Linux driver</h4>
+            <p>It took time to reach a point where I could tackle a project close to the work I want to do on my own.</p>
+            <p>To explore SoC and BSP work, I booted ARM64 Linux in QEMU and connected the Device Tree, kernel driver, and userspace program.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -26,4 +68,5 @@
   <section id="about" class="section section-dark"><div class="container about-grid"><div><p class="eyebrow">ABOUT</p><h2>From working code<br>to explainable systems</h2></div><div class="about-copy"><p>I read documentation and source code directly, then trace function calls and data flow. I break issues into reproducible units, narrow down causes from observable evidence, and aim to explain not only what works, but why it works.</p><div class="home-links"><a href="about-details.html">View career/education details →</a><a href="https://github.com/MeawMye" target="_blank" rel="noreferrer">GitHub ↗</a><a href="https://www.linkedin.com/in/hayoung-kim-sw/" target="_blank" rel="noreferrer">LinkedIn ↗</a><a href="../assets/documents/Hayoung_Kim_Public_CV.pdf" target="_blank" rel="noreferrer">English CV ↗</a></div></div></div></section>
 </main>
 <footer class="site-footer"><div class="container footer-wrap"><div><strong>Hayoung Kim</strong><p>Embedded Software Developer</p></div><a class="text-link back-top" href="#top">Back to top ↑</a></div></footer><script src="../script.js?v=20261124b"></script>
+<script src="../project-journey.js?v=2"></script>
 </body></html>
