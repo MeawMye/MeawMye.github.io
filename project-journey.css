@@ -23,9 +23,25 @@
 .journey-note {
   position: relative;
   margin: 0;
-  max-width: 26rem;
+  max-width: 30rem;
   color: var(--ink);
   overflow-wrap: break-word;
+}
+
+.journey-row .home-project-body,
+.journey-note {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.journey-row h3,
+.journey-note h4 {
+  text-wrap: balance;
+}
+
+.journey-row .home-project-body > p:not(.project-index),
+.journey-note p {
+  text-wrap: pretty;
 }
 
 .journey-note h4 {
