@@ -23,9 +23,25 @@
 .journey-note {
   position: relative;
   margin: 0;
-  max-width: 34ch;
+  max-width: 26rem;
   color: var(--ink);
+  overflow-wrap: break-word;
 }
+
+.journey-note h4 {
+  margin: 0 0 .55rem;
+  font-size: 1.125rem;
+  line-height: 1.4;
+}
+
+.journey-note p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.journey-note p + p { margin-top: .5rem; }
 
 @media (prefers-reduced-motion: no-preference) {
   .journey-note {
