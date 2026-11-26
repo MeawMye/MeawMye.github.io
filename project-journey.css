@@ -6,6 +6,14 @@
 
 .journey-row .home-project-card { margin-bottom: 28px; }
 .journey-row:last-child .home-project-card { margin-bottom: 0; }
+.journey-row .home-project-card { flex-direction: row; align-items: flex-start; }
+.journey-row .home-project-card > img {
+  flex: none;
+  width: clamp(88px, 12vw, 152px);
+  margin: 20px 0 20px 20px;
+  object-fit: contain;
+}
+.journey-row .home-project-body { min-width: 0; padding: 20px; }
 
 .journey-track {
   border-left: 1px solid var(--line);
@@ -17,6 +25,17 @@
   margin: 0;
   max-width: 34ch;
   color: var(--ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .journey-note {
+    transition: opacity 420ms ease-out, transform 420ms ease-out;
+  }
+
+  .journey-note.is-pending {
+    opacity: 0;
+    transform: translateY(8px);
+  }
 }
 
 .journey-note::before {
@@ -35,4 +54,10 @@
   .journey-row .home-project-card { margin-bottom: 0; }
   .journey-row + .journey-row { margin-top: 28px; }
   .journey-track { margin-left: 5px; padding-block: 8px; }
+}
+
+@media (max-width: 480px) {
+  .journey-row .home-project-card { flex-direction: column; }
+  .journey-row .home-project-card > img { width: 104px; margin: 16px 16px 0; }
+  .journey-row .home-project-body { padding: 16px; }
 }
